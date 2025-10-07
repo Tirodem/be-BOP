@@ -1941,7 +1941,7 @@ export async function addOrderPayment(
 	/**
 	 * `null` expiresAt means the payment method has no expiration
 	 */
-	opts?: { expiresAt?: Date | null; session?: ClientSession }
+	opts?: { expiresAt?: Date | null; session?: ClientSession; posSubtype?: string }
 ) {
 	if (order.status !== 'pending') {
 		throw error(400, 'Order is not pending');
@@ -1979,6 +1979,7 @@ export async function addOrderPayment(
 		status: 'pending',
 		method: paymentMethod,
 		price: paymentPrice(paymentMethod, priceToPay),
+		...(paymentMethod === 'point-of-sale' && opts?.posSubtype && { posSubtype: opts.posSubtype }),
 		currencySnapshot: {
 			main: {
 				price: {
