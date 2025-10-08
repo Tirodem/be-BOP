@@ -33,6 +33,7 @@
 	let count = 0;
 	let copiedPaymentAddress = -1;
 	let selectedPaymentMethod: string = data.paymentMethods[0] || 'card';
+	let replacePaymentMethod: string = data.paymentMethods[0] || 'card';
 
 	onMount(() => {
 		const interval = setInterval(() => {
@@ -326,14 +327,27 @@
 											</label>
 											<label class="form-label">
 												<span>{t('checkout.payment.method')}</span>
-												<select name="method" class="form-input">
+												<select name="method" class="form-input" bind:value={replacePaymentMethod}>
 													{#each filteredPaymentMethods as paymentMethod}
 														<option value={paymentMethod}
 															>{t(`checkout.paymentMethod.${paymentMethod}`)}</option
 														>
 													{/each}
 												</select>
-											</label><br />
+											</label>
+											{#if replacePaymentMethod === 'point-of-sale' && data.posSubtypes?.length}
+											<label class="form-label">
+												<span>Payment Type</span>
+												<select name="posSubtype" class="form-input" required>
+													{#each data.posSubtypes as subtype}
+														<option value={subtype.slug}>
+															{subtype.name}
+														</option>
+													{/each}
+												</select>
+											</label>
+											{/if}
+											<br />
 											<button type="submit" class="btn btn-blue self-end"
 												>{t('order.newPaymentAttempt.cta')}</button
 											>
@@ -573,14 +587,28 @@
 												</label>
 												<label class="form-label">
 													<span>{t('checkout.payment.method')}</span>
-													<select name="method" class="form-input">
+													<select name="method" class="form-input" bind:value={replacePaymentMethod}>
 														{#each data.paymentMethods as paymentMethod}
 															<option value={paymentMethod}
 																>{t(`checkout.paymentMethod.${paymentMethod}`)}</option
 															>
 														{/each}
 													</select>
-												</label><br />
+												</label>
+
+									{#if replacePaymentMethod === 'point-of-sale' && data.posSubtypes?.length}
+												<label class="form-label">
+													<span>Payment Type</span>
+													<select name="posSubtype" class="form-input" required>
+														{#each data.posSubtypes as subtype}
+															<option value={subtype.slug}>
+																{subtype.name}
+															</option>
+														{/each}
+													</select>
+												</label>
+									{/if}
+												<br />
 												<button type="submit" class="btn btn-blue self-end"
 													>{t('pos.cta.resendPaymentMethod')}</button
 												>

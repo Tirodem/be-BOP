@@ -575,6 +575,7 @@ export async function createOrder(
 		};
 		onLocation?: boolean;
 		paymentTimeOut?: number;
+		posSubtype?: string;
 		session?: ClientSession;
 	}
 ): Promise<Order['_id']> {
@@ -1528,7 +1529,11 @@ export async function createOrder(
 					order,
 					paymentMethod,
 					{ currency: 'SAT', amount: partialSatoshis },
-					{ session, expiresAt }
+					{ 
+						session, 
+						expiresAt,
+						...(paymentMethod === 'point-of-sale' && params.posSubtype && { posSubtype: params.posSubtype })
+					}
 				);
 				order.payments.push(orderPayment);
 			}
