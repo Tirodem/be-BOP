@@ -49,6 +49,7 @@ import type { OrderLabel } from '$lib/types/OrderLabel';
 import type { ScheduleEventBooked, Schedule } from '$lib/types/Schedule';
 import type { Leaderboard } from '$lib/types/Leaderboard';
 import type { PosPaymentSubtype } from '$lib/types/PosPaymentSubtype';
+import type { OrderTab } from '$lib/types/OrderTab';
 
 // Bigger than the default 10, helpful with MongoDB errors
 Error.stackTraceLimit = 100;
@@ -83,6 +84,7 @@ const genCollection = () => ({
 	digitalFiles: db.collection<DigitalFile>('digitalFiles'),
 	pendingDigitalFiles: db.collection<DigitalFile>('digitalFiles.pending'),
 	orders: db.collection<Order>('orders'),
+	orderTabs: db.collection<OrderTab>('orderTabs'),
 	nostrNotifications: db.collection<NostRNotification>('notifications.nostr'),
 	emailNotifications: db.collection<EmailNotification>('notifications.email'),
 	nostrReceivedMessages: db.collection<NostRReceivedMessage>('nostr.receivedMessage'),
