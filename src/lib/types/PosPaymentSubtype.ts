@@ -14,4 +14,3 @@ export interface PosPaymentSubtype extends Timestamps {
 	disabled?: boolean;
 	sortOrder: number;
 }
-

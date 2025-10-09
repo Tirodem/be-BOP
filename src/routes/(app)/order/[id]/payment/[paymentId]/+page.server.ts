@@ -59,7 +59,8 @@ export const actions = {
 			await addOrderPayment(order, parsed.method, payment.currencySnapshot.main.price, {
 				expiresAt: paymentMethodExpiration(parsed.method),
 				session,
-				...(parsed.method === 'point-of-sale' && parsed.posSubtype && { posSubtype: parsed.posSubtype })
+				...(parsed.method === 'point-of-sale' &&
+					parsed.posSubtype && { posSubtype: parsed.posSubtype })
 			});
 		});
 		throw redirect(303, `/order/${order._id}`);

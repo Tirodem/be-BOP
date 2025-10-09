@@ -71,7 +71,8 @@ export const actions = {
 			},
 			{
 				expiresAt: null,
-				...(parsed.method === 'point-of-sale' && parsed.posSubtype && { posSubtype: parsed.posSubtype })
+				...(parsed.method === 'point-of-sale' &&
+					parsed.posSubtype && { posSubtype: parsed.posSubtype })
 			}
 		);
 

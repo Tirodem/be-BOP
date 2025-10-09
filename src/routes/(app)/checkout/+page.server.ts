@@ -87,12 +87,12 @@ export async function load({ parent, locals }) {
 		locals.user?.roleId !== undefined && locals.user?.roleId !== CUSTOMER_ROLE_ID
 			? 'employee'
 			: undefined;
-	
+
 	const posSubtypes = await collections.posPaymentSubtypes
 		.find({ disabled: { $ne: true } })
 		.sort({ sortOrder: 1 })
 		.toArray();
-	
+
 	return {
 		paymentMethods: methods,
 		emailsEnabled,
@@ -304,21 +304,22 @@ export const actions = {
 					.parse(Object.fromEntries(formData)).multiplePaymentMethods
 			: false;
 
-	const paymentMethod = multiplePaymentMethods
-		? null
-		: z
-				.object({
-					paymentMethod: z.enum([methods[0], ...methods.slice(1)])
-				})
-				.parse(Object.fromEntries(formData)).paymentMethod;
-	
-	const posSubtype = paymentMethod === 'point-of-sale'
-		? z
-				.object({
-					posSubtype: z.string().optional()
-				})
-				.parse(Object.fromEntries(formData)).posSubtype
-		: undefined;
+		const paymentMethod = multiplePaymentMethods
+			? null
+			: z
+					.object({
+						paymentMethod: z.enum([methods[0], ...methods.slice(1)])
+					})
+					.parse(Object.fromEntries(formData)).paymentMethod;
+
+		const posSubtype =
+			paymentMethod === 'point-of-sale'
+				? z
+						.object({
+							posSubtype: z.string().optional()
+						})
+						.parse(Object.fromEntries(formData)).posSubtype
+				: undefined;
 
 		const { discountAmount, discountType, discountJustification } = z
 			.object({

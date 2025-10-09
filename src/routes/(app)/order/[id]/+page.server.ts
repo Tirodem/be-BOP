@@ -85,10 +85,7 @@ export async function load({ params, depends, locals }) {
 	};
 
 	const posSubtypes = (
-		await collections.posPaymentSubtypes
-			.find({})
-			.sort({ sortOrder: 1 })
-			.toArray()
+		await collections.posPaymentSubtypes.find({}).sort({ sortOrder: 1 }).toArray()
 	).map((subtype) => ({
 		slug: subtype.slug,
 		name: subtype.name,

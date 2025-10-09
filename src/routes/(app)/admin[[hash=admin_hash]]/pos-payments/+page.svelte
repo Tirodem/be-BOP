@@ -106,26 +106,24 @@
 								Edit
 							</button>
 
-								<form
-									method="post"
-									action="?/delete"
-									use:enhance={() => {
-										return async ({ result }) => {
-											await applyAction(result);
-											if (result.type === 'success') {
-												await invalidateAll();
-											}
-										};
-									}}
-								>
+							<form
+								method="post"
+								action="?/delete"
+								use:enhance={() => {
+									return async ({ result }) => {
+										await applyAction(result);
+										if (result.type === 'success') {
+											await invalidateAll();
+										}
+									};
+								}}
+							>
 								<input type="hidden" name="id" value={subtype._id.toString()} />
 								<button
 									type="submit"
 									class="btn btn-sm btn-danger"
 									on:click={(e) => {
-										if (
-											!confirm(`Delete "${subtype.name}"?\n\nThis action cannot be undone.`)
-										) {
+										if (!confirm(`Delete "${subtype.name}"?\n\nThis action cannot be undone.`)) {
 											e.preventDefault();
 										}
 									}}
@@ -142,11 +140,7 @@
 
 	<!-- Create/Edit Form Toggle -->
 	{#if !showCreateForm && !editingSubtype}
-		<button
-			type="button"
-			class="btn btn-black self-start"
-			on:click={() => (showCreateForm = true)}
-		>
+		<button type="button" class="btn btn-black self-start" on:click={() => (showCreateForm = true)}>
 			+ Create New Subtype
 		</button>
 	{/if}
@@ -203,8 +197,7 @@
 						required
 					/>
 					<p class="text-xs text-gray-500 mt-1">
-						Unique identifier (lowercase, alphanumeric, hyphens). Cannot be changed after
-						creation.
+						Unique identifier (lowercase, alphanumeric, hyphens). Cannot be changed after creation.
 					</p>
 				</label>
 			{:else}
@@ -221,8 +214,9 @@
 					name="description"
 					class="form-input"
 					rows="2"
-					placeholder="Optional description for admin reference">{editingSubtype?.description ||
-						''}</textarea>
+					placeholder="Optional description for admin reference"
+					>{editingSubtype?.description || ''}</textarea
+				>
 			</label>
 
 			<!-- Tap-to-pay Configuration -->
@@ -247,10 +241,7 @@
 				>
 					<option value="">Not used</option>
 					{#each data.availableProcessors as proc}
-						<option
-							value={proc.processor}
-							disabled={!proc.available}
-						>
+						<option value={proc.processor} disabled={!proc.available}>
 							{proc.displayName}
 							{#if !proc.available}(not configured){/if}
 						</option>
@@ -262,20 +253,20 @@
 				</p>
 			</label>
 
-		<label class="form-label">
-			Tap-to-pay URL (optional)
-			<input
-				type="url"
-				name="tapToPayUrl"
-				class="form-input"
-				bind:value={urlInput}
-				placeholder="e.g. https://open.paynow-app.com"
-				disabled={tapToPayUrlDisabled}
-			/>
-			<p class="text-xs text-gray-500 mt-1">
-				Deep link to open the payment terminal app (e.g. Paynow for Stripe)
-			</p>
-		</label>
+			<label class="form-label">
+				Tap-to-pay URL (optional)
+				<input
+					type="url"
+					name="tapToPayUrl"
+					class="form-input"
+					bind:value={urlInput}
+					placeholder="e.g. https://open.paynow-app.com"
+					disabled={tapToPayUrlDisabled}
+				/>
+				<p class="text-xs text-gray-500 mt-1">
+					Deep link to open the payment terminal app (e.g. Paynow for Stripe)
+				</p>
+			</label>
 
 			<!-- Disabled checkbox (only for edit) -->
 			{#if editingSubtype}
@@ -302,4 +293,3 @@
 		</form>
 	{/if}
 </div>
-

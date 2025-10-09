@@ -171,9 +171,10 @@
 
 		for (const order of orders) {
 			for (const payment of order.payments) {
-				const key = payment.method === 'point-of-sale' && payment.posSubtype 
-					? `${payment.method}:${payment.posSubtype}`
-					: payment.method;
+				const key =
+					payment.method === 'point-of-sale' && payment.posSubtype
+						? `${payment.method}:${payment.posSubtype}`
+						: payment.method;
 				paymentMeanDetails[key] ??= [];
 				paymentMeanDetails[key].push(payment.currencySnapshot.main.price);
 				paymentMeanQuantities[key] ??= { quantity: 0, total: 0 };
@@ -599,14 +600,14 @@
 										</time>
 									{/if}
 								</td>
-							<td class="border border-gray-300 px-4 py-2">{order.status}</td>
-							<td class="border border-gray-300 px-4 py-2"
-								>{payment.method}{#if payment.method === 'point-of-sale' && payment.posSubtype}
-									{@const subtype = data.posSubtypes?.find((s) => s.slug === payment.posSubtype)}
-									({subtype?.name || payment.posSubtype})
-								{/if}</td
-							>
-							<td class="border border-gray-300 px-4 py-2">
+								<td class="border border-gray-300 px-4 py-2">{order.status}</td>
+								<td class="border border-gray-300 px-4 py-2"
+									>{payment.method}{#if payment.method === 'point-of-sale' && payment.posSubtype}
+										{@const subtype = data.posSubtypes?.find((s) => s.slug === payment.posSubtype)}
+										({subtype?.name || payment.posSubtype})
+									{/if}</td
+								>
+								<td class="border border-gray-300 px-4 py-2">
 									<a
 										class="body-hyperlink underline"
 										target="_blank"
@@ -846,7 +847,9 @@
 					<!-- Order rows -->
 					{#each Object.entries(quantityOfPaymentMean(paidOrders)).sort((a, b) => b[1].quantity - a[1].quantity) as [method, { quantity, total }]}
 						{@const [paymentMethod, posSubtypeSlug] = method.split(':')}
-						{@const subtype = posSubtypeSlug ? data.posSubtypes?.find((s) => s.slug === posSubtypeSlug) : null}
+						{@const subtype = posSubtypeSlug
+							? data.posSubtypes?.find((s) => s.slug === posSubtypeSlug)
+							: null}
 						<tr class="hover:bg-gray-100 whitespace-nowrap">
 							<td class="border border-gray-300 px-4 py-2">
 								<time datetime={beginsAt.toISOString()}>
@@ -858,7 +861,8 @@
 								</time>
 							</td>
 							<td class="border border-gray-300 px-4 py-2"
-								>{paymentMethod}{#if subtype} ({subtype.name}){/if}</td
+								>{paymentMethod}{#if subtype}
+									({subtype.name}){/if}</td
 							>
 							<td class="border border-gray-300 px-4 py-2">{quantity}</td>
 							<td class="border border-gray-300 px-4 py-2">{total}</td>

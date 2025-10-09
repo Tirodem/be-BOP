@@ -171,15 +171,17 @@
 
 			{#each data.order.payments as payment, i}
 				<details class="border border-gray-300 rounded-xl p-4" open={payment.status === 'pending'}>
-				<summary class="lg:text-xl cursor-pointer">
-					<!-- Extra span to keep the "arrow" for the details -->
-					<span class="items-center inline-flex gap-2"
-						>{t(`checkout.paymentMethod.${payment.method}`)}{#if payment.method === 'point-of-sale' && payment.posSubtype}
-							{@const subtype = data.posSubtypes?.find((s) => s.slug === payment.posSubtype)}
-							<span class="text-sm text-gray-600">
-								({subtype?.name || payment.posSubtype})
-							</span>
-						{/if}
+					<summary class="lg:text-xl cursor-pointer">
+						<!-- Extra span to keep the "arrow" for the details -->
+						<span class="items-center inline-flex gap-2"
+							>{t(
+								`checkout.paymentMethod.${payment.method}`
+							)}{#if payment.method === 'point-of-sale' && payment.posSubtype}
+								{@const subtype = data.posSubtypes?.find((s) => s.slug === payment.posSubtype)}
+								<span class="text-sm text-gray-600">
+									({subtype?.name || payment.posSubtype})
+								</span>
+							{/if}
 							- <PriceTag
 								inline
 								class="break-words {payment.status === 'paid'
@@ -336,16 +338,16 @@
 												</select>
 											</label>
 											{#if replacePaymentMethod === 'point-of-sale' && data.posSubtypes?.length}
-											<label class="form-label">
-												<span>Payment Type</span>
-												<select name="posSubtype" class="form-input" required>
-													{#each data.posSubtypes as subtype}
-														<option value={subtype.slug}>
-															{subtype.name}
-														</option>
-													{/each}
-												</select>
-											</label>
+												<label class="form-label">
+													<span>Payment Type</span>
+													<select name="posSubtype" class="form-input" required>
+														{#each data.posSubtypes as subtype}
+															<option value={subtype.slug}>
+																{subtype.name}
+															</option>
+														{/each}
+													</select>
+												</label>
 											{/if}
 											<br />
 											<button type="submit" class="btn btn-blue self-end"
@@ -587,7 +589,11 @@
 												</label>
 												<label class="form-label">
 													<span>{t('checkout.payment.method')}</span>
-													<select name="method" class="form-input" bind:value={replacePaymentMethod}>
+													<select
+														name="method"
+														class="form-input"
+														bind:value={replacePaymentMethod}
+													>
 														{#each data.paymentMethods as paymentMethod}
 															<option value={paymentMethod}
 																>{t(`checkout.paymentMethod.${paymentMethod}`)}</option
@@ -596,18 +602,18 @@
 													</select>
 												</label>
 
-									{#if replacePaymentMethod === 'point-of-sale' && data.posSubtypes?.length}
-												<label class="form-label">
-													<span>Payment Type</span>
-													<select name="posSubtype" class="form-input" required>
-														{#each data.posSubtypes as subtype}
-															<option value={subtype.slug}>
-																{subtype.name}
-															</option>
-														{/each}
-													</select>
-												</label>
-									{/if}
+												{#if replacePaymentMethod === 'point-of-sale' && data.posSubtypes?.length}
+													<label class="form-label">
+														<span>Payment Type</span>
+														<select name="posSubtype" class="form-input" required>
+															{#each data.posSubtypes as subtype}
+																<option value={subtype.slug}>
+																	{subtype.name}
+																</option>
+															{/each}
+														</select>
+													</label>
+												{/if}
 												<br />
 												<button type="submit" class="btn btn-blue self-end"
 													>{t('pos.cta.resendPaymentMethod')}</button
@@ -821,29 +827,29 @@
 							</select>
 						</label>
 
-					{#if selectedPaymentMethod === 'point-of-sale' && data.posSubtypes?.length}
-						<label class="form-label">
-							<span>Payment Type</span>
-							<select name="posSubtype" class="form-input" required>
-								{#each data.posSubtypes as subtype}
-									<option value={subtype.slug}>
-										{subtype.name}
-									</option>
-								{/each}
-							</select>
-						</label>
-					{/if}
-				</div>
-				<div class="flex gap-2 mt-4">
-					<button type="submit" class="btn btn-blue">{t('order.addPayment.cta')}</button>
-					<button
-						type="submit"
-						class="btn btn-red"
-						on:click={confirmCancelOrder}
-						form="cancelOrderForm"
-					>
-						{t('pos.cta.cancelMultiPayOrder')}
-					</button>
+						{#if selectedPaymentMethod === 'point-of-sale' && data.posSubtypes?.length}
+							<label class="form-label">
+								<span>Payment Type</span>
+								<select name="posSubtype" class="form-input" required>
+									{#each data.posSubtypes as subtype}
+										<option value={subtype.slug}>
+											{subtype.name}
+										</option>
+									{/each}
+								</select>
+							</label>
+						{/if}
+					</div>
+					<div class="flex gap-2 mt-4">
+						<button type="submit" class="btn btn-blue">{t('order.addPayment.cta')}</button>
+						<button
+							type="submit"
+							class="btn btn-red"
+							on:click={confirmCancelOrder}
+							form="cancelOrderForm"
+						>
+							{t('pos.cta.cancelMultiPayOrder')}
+						</button>
 					</div>
 				</form>
 			{/if}
