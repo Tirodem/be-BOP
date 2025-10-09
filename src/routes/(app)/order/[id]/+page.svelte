@@ -516,7 +516,7 @@
 												<p class="text-red-500 w-full">
 													{t('pos.tapToPay.inUseByOtherOrder')}
 												</p>
-											{:else if data.tapToPay.configured}
+											{:else if data.tapToPay.configured && payment.posSubtypeHasProcessor}
 												<button
 													type="submit"
 													form="tapToPayForm"

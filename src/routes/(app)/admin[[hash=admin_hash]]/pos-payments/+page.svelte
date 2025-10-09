@@ -2,16 +2,31 @@
 	import { applyAction, enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import type { ActionData, PageData } from './$types';
+	import { generateId } from '$lib/utils/generateId';
 
 	export let data: PageData;
 	export let form: ActionData;
 
 	let showCreateForm = false;
 	let editingSubtype: (typeof data.subtypes)[0] | null = null;
+	let nameInput = '';
+	let slugInput = '';
+	let selectedProcessor = '';
+	let urlInput = '';
+
+	$: if (!editingSubtype && nameInput) {
+		slugInput = generateId(nameInput, false);
+	}
+
+	$: tapToPayUrlDisabled = !selectedProcessor;
 
 	function resetForm() {
 		showCreateForm = false;
 		editingSubtype = null;
+		nameInput = '';
+		slugInput = '';
+		selectedProcessor = '';
+		urlInput = '';
 	}
 </script>
 
@@ -83,6 +98,9 @@
 								on:click={() => {
 									editingSubtype = subtype;
 									showCreateForm = false;
+									nameInput = subtype.name;
+									selectedProcessor = subtype.tapToPay?.processor || '';
+									urlInput = subtype.tapToPay?.onActivationUrl || '';
 								}}
 							>
 								Edit
@@ -157,6 +175,19 @@
 				<input type="hidden" name="id" value={editingSubtype._id.toString()} />
 			{/if}
 
+			<!-- Display Name -->
+			<label class="form-label">
+				Display Name <span class="text-red-500">*</span>
+				<input
+					type="text"
+					name="name"
+					class="form-input"
+					bind:value={nameInput}
+					placeholder="e.g. Cash, Check, External POS Terminal"
+					required
+				/>
+			</label>
+
 			<!-- Slug (only for create) -->
 			{#if !editingSubtype}
 				<label class="form-label">
@@ -165,6 +196,7 @@
 						type="text"
 						name="slug"
 						class="form-input"
+						bind:value={slugInput}
 						placeholder="e.g. cash, check, external-tpe"
 						pattern="[a-z0-9-]+"
 						title="Lowercase letters, numbers, and hyphens only"
@@ -181,19 +213,6 @@
 					<p class="text-xs text-gray-500">Cannot be changed</p>
 				</div>
 			{/if}
-
-			<!-- Display Name -->
-			<label class="form-label">
-				Display Name <span class="text-red-500">*</span>
-				<input
-					type="text"
-					name="name"
-					class="form-input"
-					value={editingSubtype?.name || ''}
-					placeholder="e.g. Cash, Check, External POS Terminal"
-					required
-				/>
-			</label>
 
 			<!-- Description -->
 			<label class="form-label">
@@ -216,13 +235,21 @@
 
 			<label class="form-label">
 				Tap-to-pay Processor
-				<select name="tapToPayProcessor" class="form-input">
+				<select
+					name="tapToPayProcessor"
+					class="form-input"
+					bind:value={selectedProcessor}
+					on:change={() => {
+						if (!selectedProcessor) {
+							urlInput = '';
+						}
+					}}
+				>
 					<option value="">Not used</option>
 					{#each data.availableProcessors as proc}
 						<option
 							value={proc.processor}
 							disabled={!proc.available}
-							selected={editingSubtype?.tapToPay?.processor === proc.processor}
 						>
 							{proc.displayName}
 							{#if !proc.available}(not configured){/if}
@@ -241,8 +268,9 @@
 				type="url"
 				name="tapToPayUrl"
 				class="form-input"
-				value={editingSubtype?.tapToPay?.onActivationUrl || ''}
+				bind:value={urlInput}
 				placeholder="e.g. https://open.paynow-app.com"
+				disabled={tapToPayUrlDisabled}
 			/>
 			<p class="text-xs text-gray-500 mt-1">
 				Deep link to open the payment terminal app (e.g. Paynow for Stripe)

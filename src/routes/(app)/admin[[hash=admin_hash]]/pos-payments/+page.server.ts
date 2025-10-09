@@ -57,7 +57,7 @@ export const actions: Actions = {
 				name: formData.get('name'),
 				description: formData.get('description'),
 				tapToPayProcessor: formData.get('tapToPayProcessor') || '',
-				tapToPayUrl: formData.get('tapToPayUrl')
+				tapToPayUrl: formData.get('tapToPayUrl') || ''
 			});
 
 		if (!parsed.success) {
@@ -91,6 +91,10 @@ export const actions: Actions = {
 			updatedAt: new Date()
 		};
 
+		if (!parsed.data.tapToPayProcessor) {
+			newSubtype.tapToPay = undefined;
+		}
+
 		await collections.posPaymentSubtypes.insertOne(newSubtype);
 
 		return { success: true };
@@ -113,7 +117,7 @@ export const actions: Actions = {
 				name: formData.get('name'),
 				description: formData.get('description'),
 				tapToPayProcessor: formData.get('tapToPayProcessor') || '',
-				tapToPayUrl: formData.get('tapToPayUrl'),
+				tapToPayUrl: formData.get('tapToPayUrl') || '',
 				disabled: formData.get('disabled') === 'true'
 			});
 
@@ -133,6 +137,10 @@ export const actions: Actions = {
 			disabled: parsed.data.disabled,
 			updatedAt: new Date()
 		};
+
+		if (!parsed.data.tapToPayProcessor) {
+			updateData.tapToPay = undefined;
+		}
 
 		const result = await collections.posPaymentSubtypes.updateOne(
 			{ _id: new ObjectId(parsed.data.id) },

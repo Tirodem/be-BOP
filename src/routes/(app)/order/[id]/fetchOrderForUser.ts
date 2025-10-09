@@ -27,7 +27,7 @@ export async function fetchOrderForUser(orderId: string, params?: { userRoleId?:
 		.find({ productId: { $in: order.items.map((item) => item.product._id) } })
 		.toArray();
 
-	const posSubtypesMap = new Map<string, { tapToPayOnActivationUrl?: string }>();
+	const posSubtypesMap = new Map<string, { tapToPayOnActivationUrl?: string; hasProcessor: boolean }>();
 	
 	for (const payment of order.payments) {
 		if (payment.posSubtype && !posSubtypesMap.has(payment.posSubtype)) {
@@ -35,7 +35,8 @@ export async function fetchOrderForUser(orderId: string, params?: { userRoleId?:
 				slug: payment.posSubtype
 			});
 			posSubtypesMap.set(payment.posSubtype, {
-				tapToPayOnActivationUrl: subtype?.tapToPay?.onActivationUrl
+				tapToPayOnActivationUrl: subtype?.tapToPay?.onActivationUrl,
+				hasProcessor: !!subtype?.tapToPay?.processor
 			});
 		}
 	}
@@ -128,6 +129,9 @@ export async function fetchOrderForUser(orderId: string, params?: { userRoleId?:
 			tapToPayOnActivationUrl: payment.posSubtype 
 				? (posSubtypesMap.get(payment.posSubtype)?.tapToPayOnActivationUrl ?? runtimeConfig.posTapToPay.onActivationUrl)
 				: runtimeConfig.posTapToPay.onActivationUrl,
+			posSubtypeHasProcessor: payment.posSubtype 
+				? (posSubtypesMap.get(payment.posSubtype)?.hasProcessor ?? false)
+				: false,
 			processor: payment.method === 'card' ? payment.processor : undefined,
 			status: payment.status,
 			address: payment.address,
