@@ -91,12 +91,12 @@ export const actions = {
 				posTouchTag
 			});
 		const posTapToPay = {
-			processor: result.tapToPayProvider 
+			processor: result.tapToPayProvider
 				? ALL_PAYMENT_PROCESSORS.find((p) => p === result.tapToPayProvider)
 				: undefined,
 			onActivationUrl:
-				result.tapToPayOnActivationUrl && result.tapToPayOnActivationUrl !== '' 
-					? result.tapToPayOnActivationUrl 
+				result.tapToPayOnActivationUrl && result.tapToPayOnActivationUrl !== ''
+					? result.tapToPayOnActivationUrl
 					: undefined
 		};
 		const parsedOptsForPosQrCodeAfterPayment = z

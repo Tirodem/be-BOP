@@ -1532,10 +1532,11 @@ export async function createOrder(
 					order,
 					paymentMethod,
 					{ currency: 'SAT', amount: partialSatoshis },
-					{ 
-						session, 
+					{
+						session,
 						expiresAt,
-						...(paymentMethod === 'point-of-sale' && params.posSubtype && { posSubtype: params.posSubtype })
+						...(paymentMethod === 'point-of-sale' &&
+							params.posSubtype && { posSubtype: params.posSubtype })
 					}
 				);
 				order.payments.push(orderPayment);

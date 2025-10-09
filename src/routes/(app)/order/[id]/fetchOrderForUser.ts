@@ -27,8 +27,11 @@ export async function fetchOrderForUser(orderId: string, params?: { userRoleId?:
 		.find({ productId: { $in: order.items.map((item) => item.product._id) } })
 		.toArray();
 
-	const posSubtypesMap = new Map<string, { tapToPayOnActivationUrl?: string; hasProcessor: boolean }>();
-	
+	const posSubtypesMap = new Map<
+		string,
+		{ tapToPayOnActivationUrl?: string; hasProcessor: boolean }
+	>();
+
 	for (const payment of order.payments) {
 		if (payment.posSubtype && !posSubtypesMap.has(payment.posSubtype)) {
 			const subtype = await collections.posPaymentSubtypes.findOne({
@@ -126,11 +129,12 @@ export async function fetchOrderForUser(orderId: string, params?: { userRoleId?:
 			method: payment.method,
 			posSubtype: payment.posSubtype,
 			posTapToPay: payment.posTapToPay,
-			tapToPayOnActivationUrl: payment.posSubtype 
-				? (posSubtypesMap.get(payment.posSubtype)?.tapToPayOnActivationUrl ?? runtimeConfig.posTapToPay.onActivationUrl)
+			tapToPayOnActivationUrl: payment.posSubtype
+				? posSubtypesMap.get(payment.posSubtype)?.tapToPayOnActivationUrl ??
+				  runtimeConfig.posTapToPay.onActivationUrl
 				: runtimeConfig.posTapToPay.onActivationUrl,
-			posSubtypeHasProcessor: payment.posSubtype 
-				? (posSubtypesMap.get(payment.posSubtype)?.hasProcessor ?? false)
+			posSubtypeHasProcessor: payment.posSubtype
+				? posSubtypesMap.get(payment.posSubtype)?.hasProcessor ?? false
 				: false,
 			processor: payment.method === 'card' ? payment.processor : undefined,
 			status: payment.status,

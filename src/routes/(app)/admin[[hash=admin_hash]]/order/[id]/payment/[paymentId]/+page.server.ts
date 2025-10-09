@@ -121,24 +121,24 @@ export const actions = {
 			throw error(400, 'Payment is not pending');
 		}
 		if (payment.method !== 'point-of-sale') {
-		throw error(400, 'Payment is not point-of-sale');
-	}
-
-	let tapToPayProcessor: PaymentProcessor | undefined;
-
-	if (payment.posSubtype) {
-		const subtype = await collections.posPaymentSubtypes.findOne({
-			slug: payment.posSubtype
-		});
-
-		if (subtype?.tapToPay) {
-			tapToPayProcessor = subtype.tapToPay.processor;
+			throw error(400, 'Payment is not point-of-sale');
 		}
-	}
 
-	if (!tapToPayProcessor) {
-		tapToPayProcessor = runtimeConfig.posTapToPay.processor;
-	}
+		let tapToPayProcessor: PaymentProcessor | undefined;
+
+		if (payment.posSubtype) {
+			const subtype = await collections.posPaymentSubtypes.findOne({
+				slug: payment.posSubtype
+			});
+
+			if (subtype?.tapToPay) {
+				tapToPayProcessor = subtype.tapToPay.processor;
+			}
+		}
+
+		if (!tapToPayProcessor) {
+			tapToPayProcessor = runtimeConfig.posTapToPay.processor;
+		}
 
 		if (!tapToPayProcessor) {
 			throw error(400, 'Tap-to-pay not configured for this payment type');

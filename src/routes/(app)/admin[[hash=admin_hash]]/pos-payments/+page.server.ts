@@ -9,8 +9,11 @@ import type { PaymentProcessor } from '$lib/server/payment-methods';
 import { z } from 'zod';
 
 export const load = async () => {
-	const subtypesRaw = await collections.posPaymentSubtypes.find({}).sort({ sortOrder: 1 }).toArray();
-	
+	const subtypesRaw = await collections.posPaymentSubtypes
+		.find({})
+		.sort({ sortOrder: 1 })
+		.toArray();
+
 	const subtypes = subtypesRaw.map((subtype) => ({
 		...subtype,
 		_id: subtype._id.toString(),
@@ -179,4 +182,3 @@ export const actions: Actions = {
 		return { success: true };
 	}
 };
-
