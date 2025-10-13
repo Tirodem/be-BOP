@@ -244,6 +244,9 @@ const baseConfig = {
 		displayCustomerCta: false,
 		removeBebobLogo: false
 	},
+	posSessionsEnabled: false,
+	posAllowXTicketEditing: false,
+	posCashDeltaJustificationMandatory: false,
 	displayNewsletterCommercialProspection: false,
 	cartMaxSeparateItems: null as null | number,
 	physicalCartMinAmount: null as null | number,

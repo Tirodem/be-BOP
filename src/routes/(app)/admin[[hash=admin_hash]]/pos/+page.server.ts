@@ -8,6 +8,7 @@ import { error, redirect } from '@sveltejs/kit';
 import type { JsonObject } from 'type-fest';
 import { z } from 'zod';
 import { persistConfigElement } from '$lib/server/utils/persistConfig';
+import type { Actions } from './$types';
 
 export const load = async ({}) => {
 	const tags = await collections.tags
@@ -38,6 +39,9 @@ export const load = async ({}) => {
 		posPrefillTermOfUse: runtimeConfig.posPrefillTermOfUse,
 		posDisplayOrderQrAfterPayment: runtimeConfig.posDisplayOrderQrAfterPayment,
 		posQrCodeAfterPayment: runtimeConfig.posQrCodeAfterPayment,
+		posSessionsEnabled: runtimeConfig.posSessionsEnabled,
+		posAllowXTicketEditing: runtimeConfig.posAllowXTicketEditing,
+		posCashDeltaJustificationMandatory: runtimeConfig.posCashDeltaJustificationMandatory,
 		tapToPay: {
 			providers: tapToPayProviders,
 			currentProcessor: runtimeConfig.posTapToPay.processor,
@@ -46,8 +50,8 @@ export const load = async ({}) => {
 	};
 };
 
-export const actions = {
-	default: async function ({ request }) {
+export const actions: Actions = {
+	default: async ({ request }) => {
 		const formData = await request.formData();
 		const json: JsonObject = {};
 		for (const [key, value] of formData) {
@@ -83,7 +87,10 @@ export const actions = {
 					.array(),
 				posTouchTag: z.string().array(),
 				tapToPayOnActivationUrl: z.string(),
-				tapToPayProvider: z.string()
+				tapToPayProvider: z.string(),
+				posSessionsEnabled: z.boolean({ coerce: true }).default(false),
+				posAllowXTicketEditing: z.boolean({ coerce: true }).default(false),
+				posCashDeltaJustificationMandatory: z.boolean({ coerce: true }).default(false)
 			})
 			.parse({
 				...json,
@@ -124,6 +131,15 @@ export const actions = {
 		runtimeConfig.posQrCodeAfterPayment = posQrCodeAfterPayment;
 		await persistConfigElement('posTapToPay', posTapToPay);
 		runtimeConfig.posTapToPay = posTapToPay;
+		await persistConfigElement('posSessionsEnabled', result.posSessionsEnabled);
+		runtimeConfig.posSessionsEnabled = result.posSessionsEnabled;
+		await persistConfigElement('posAllowXTicketEditing', result.posAllowXTicketEditing);
+		runtimeConfig.posAllowXTicketEditing = result.posAllowXTicketEditing;
+		await persistConfigElement(
+			'posCashDeltaJustificationMandatory',
+			result.posCashDeltaJustificationMandatory
+		);
+		runtimeConfig.posCashDeltaJustificationMandatory = result.posCashDeltaJustificationMandatory;
 		throw redirect(303, `${adminPrefix()}/pos`);
 	}
 };

@@ -208,6 +208,23 @@
 	.alert-info {
 		@apply border border-blue-400 p-2 text-blue-600 rounded;
 	}
+
+	.admin-table {
+		@apply border border-gray-300 divide-y divide-gray-300 border-collapse;
+	}
+
+	.admin-table-header {
+		@apply bg-gray-200;
+	}
+
+	.admin-table-th {
+		@apply border border-gray-300 p-2;
+	}
+
+	.admin-table-td {
+		@apply border border-gray-300 p-2;
+	}
+
 	.body-secondPlan {
 		color: var(--body-text-color);
 		font-family: var(--body-text-fontFamily);

@@ -49,6 +49,7 @@ import type { OrderLabel } from '$lib/types/OrderLabel';
 import type { ScheduleEventBooked, Schedule } from '$lib/types/Schedule';
 import type { Leaderboard } from '$lib/types/Leaderboard';
 import type { OrderTab } from '$lib/types/OrderTab';
+import type { PosSession } from '$lib/types/PosSession';
 
 // Bigger than the default 10, helpful with MongoDB errors
 Error.stackTraceLimit = 100;
@@ -108,6 +109,7 @@ const genCollection = () => ({
 	labels: db.collection<OrderLabel>('labels'),
 	schedules: db.collection<Schedule>('schedules'),
 	scheduleEvents: db.collection<ScheduleEventBooked>('schedule.events'),
+	posSessions: db.collection<PosSession>('posSessions'),
 
 	errors: db.collection<unknown & { _id: ObjectId; url: string; method: string }>('errors')
 });
@@ -208,7 +210,9 @@ const indexes: Array<[Collection<any>, IndexSpecification, CreateIndexesOptions?
 	[collections.scheduleEvents, { scheduleId: 1, status: 1, beginsAt: 1, endsAt: 1 }], // endsAt is just used for index-only scan
 	[collections.scheduleEvents, { scheduleId: 1, status: 1, endsAt: 1 }],
 	[collections.scheduleEvents, { orderId: 1 }],
-	[collections.scheduleEvents, { orderCreated: 1, _id: 1 }] // To cleanup events where there was an error during order creation
+	[collections.scheduleEvents, { orderCreated: 1, _id: 1 }], // To cleanup events where there was an error during order creation
+	[collections.posSessions, { status: 1, openedAt: -1 }],
+	[collections.posSessions, { closedAt: -1 }]
 ];
 
 export async function createIndexes() {
