@@ -13,6 +13,15 @@
 		"vatNumber": "btw-nummer",
 		"zipCode": "Postcode"
 	},
+	"admin": {
+		"product": {
+			"stockReference": {
+				"label": "Verwijzing naar voorraad van ander product (optioneel)",
+				"noReference": "-- Geen verwijzing (gebruik eigen voorraad) --",
+				"warning": "⚠️ Dit product verwijst naar de voorraad van een ander product. Voorraadwijzigingen zullen het gerefereerde product beïnvloeden."
+			}
+		}
+	},
 	"ageWarning": {
 		"agreement": "Ik heb de toegangsvoorwaarden gelezen, voldoe eraan en respecteer ze",
 		"navigate": "Vervolg de navigatie"
@@ -413,6 +422,12 @@
 		"personalInformation": "Persoonlijke informatie"
 	},
 	"login": {
+		"error": {
+			"invalidEmail": "Ongeldig e-mailadres",
+			"invalidNpub": "Ongeldig Nostr npub-adres",
+			"invalidContactAddress": "Uw contactadres is ongeldig (vul een correct e-mailadres of een Nostr npub in)",
+			"invalidOrExpiredToken": "Ongeldige of verlopen token"
+		},
 		"authenticate": {
 			"ctaCancelLabel": "Rug",
 			"ctaLabel": "Bevestigen",
@@ -452,7 +467,10 @@
 		"addPayment": {
 			"amount": "Te betalen bedrag",
 			"cta": "Stuur een oproep voor betaling",
-			"currency": "Betalingsvaluta"
+			"currency": "Betalingsvaluta",
+			"posSubtype": "Type",
+			"submit": "Toevoegen",
+			"title": "Betaling toevoegen"
 		},
 		"backToOrder": "<< Terug naar bestelling",
 		"clickQR": "Klik op de QR-code om met uw portemonnee te betalen",
@@ -565,8 +583,16 @@
 			"totalExcVat": "Totaal Excl. VAT",
 			"totalInclVat": "Totaal Incl. VAT",
 			"totalVat": "Totale BTW",
+			"totalWithDiscount": "Totaal met korting",
 			"unitPrice": "Eenheid prijs",
-			"vatFreeReason": "Vrijgesteld van btw: {reason}"
+			"vatFreeReason": "Vrijgesteld van btw: {reason}",
+			"peopleCount": "Aantal personen"
+		},
+		"forwardReceipt": {
+			"cancel": "Annuleren",
+			"send": "Verzenden",
+			"success": "Bon doorgestuurd!",
+			"title": "Bon doorsturen"
 		},
 		"receiptFullyPaid": "Bon genereren (volledig betaald)",
 		"receiptPending": "Ontvangst genereren (betaling in behandeling)",
@@ -584,6 +610,7 @@
 		"shippingAddress": {
 			"title": "Afleveradres"
 		},
+		"noOrdersYet": "Nog geen bestellingen",
 		"singleTitle": "Volgorde #{number}",
 		"summary": {
 			"fullyPaid": {
@@ -617,6 +644,33 @@
 			"resendPaymentMethod": "Verzend de betaalmethode",
 			"updatePaymentInfo": "Betalingsgegevens bijwerken"
 		},
+		"btn": {
+			"add": "Toevoegen",
+			"cancel": "Annuleren",
+			"cancelTap": "Stop Tap",
+			"paid": "Betaald",
+			"replace": "Wijzigen ▾",
+			"replaceSubmit": "Wijzigen",
+			"tapToPay": "Kaartbetaling"
+		},
+		"cashback": {
+			"title": "Wisselgeld ▾",
+			"toPay": "Te betalen",
+			"paid": "Betaald",
+			"change": "Wisselgeld",
+			"cancel": "Wisselgeld annuleren",
+			"validate": "Bevestigen"
+		},
+		"input": {
+			"detail": "Detail",
+			"txNumber": "TX nr."
+		},
+		"label": {
+			"amount": "Bedrag",
+			"currency": "Valuta",
+			"method": "Methode",
+			"subtype": "Type"
+		},
 		"discountJustification": "Rechtvaardiging",
 		"invalidDiscount": "Korting is niet geldig!",
 		"lastOrders": {
@@ -635,19 +689,29 @@
 		},
 		"sessionLink": "Bezit",
 		"sessionTouchLink": "POS-sessie - touchscreen",
+		"nonEmptyPoolsWarning": "Waarschuwing: er zijn niet-lege tafels. Verwerk deze correct voordat u uw POS-sessie sluit.",
+		"touchSessionRequired": "Als u de POS-touchscreen-interface wilt gebruiken, open dan een sessie",
 		"tapToPay": {
 			"inProgress": "De betaling wordt automatisch gevalideerd zodra de externe transactie is geregistreerd en gevalideerd.",
 			"inUseByOtherOrder": "Tap-to-pay is uitgeschakeld omdat er al een andere bestelling bezig is met deze betaalmethode. U kunt handmatig afrekenen en daarna het transactie­nummer in dit veld invullen."
 		},
 		"vatFree": "Dit is een BTW-vrije bestelling (<0>voorwaarden</0>)",
 		"vatFreeReason": "BTW-vrije reden",
+		"tagGroups": {
+			"addGroup": "Groep toevoegen",
+			"deleteGroup": "Groep verwijderen",
+			"groupNamePlaceholder": "Groepsnaam",
+			"tooManyTagsWarning": "Groep \"{groupName}\" heeft {count} tags. Te veel voor knoppenmodus. Activeer \"Gebruik selectiemenu\" optie of verminder tags. Doorgaan?"
+		},
 		"touch": {
 			"selectTab": "Selecteer een tabblad:",
 			"noTabs": "Deze groep heeft geen tabbladen",
 			"cancel": "Annuleren",
+			"back": "← Terug",
 			"ticketNumber": "TICKET nr.",
 			"exclVat": "EX",
 			"inclVat": "INC",
+			"subtotal": "SUBTOTAAL",
 			"total": "TOTAAL",
 			"vatBreakdown": "Waarvan BTW",
 			"favorites": "FAVORIETEN",
@@ -655,12 +719,17 @@
 			"pagination": "PAGINA {currentPage}/{totalPages}",
 			"tickets": "TICKETS",
 			"save": "OPSLAAN",
+			"moveItems": "Items verplaatsen",
 			"pool": "POOL",
 			"openDrawer": "LADE OPENEN",
 			"pay": "BETALEN",
 			"notDeveloped": "Nog niet ontwikkeld",
 			"confirmDeleteLastItem": "Wil je de laatste winkelwagen regel verwijderen?",
-			"confirmDeleteAllItems": "Wil je alle winkelwagen regels verwijderen?"
+			"confirmDeleteAllItems": "Wil je alle winkelwagen regels verwijderen?",
+			"maxQuantityReached": "Maximale hoeveelheid per bestelling bereikt ({max})",
+			"itemPrintedCannotDelete": "Dit artikel is afgedrukt op een keukenbon en kan niet worden verwijderd",
+			"itemPrintedCannotReduce": "De hoeveelheid kan niet worden verminderd onder de afgedrukte hoeveelheid: {min}",
+			"poolHasPrintedItems": "Deze pool bevat afgedrukte artikelen en kan niet worden verwijderd"
 		},
 		"itemEdit": {
 			"quantity": "Hoeveelheid",
@@ -674,10 +743,13 @@
 		},
 		"split": {
 			"notAvailableYet": "Nog niet beschikbaar",
-			"tabHeader": "Tab {slug}",
-			"tabToPayNow": "Tab {slug} (nu te betalen)",
+			"tabHeader": "Tab {poolLabel}",
+			"tabToPayNow": "Tab {poolLabel} (nu te betalen)",
+			"pool": "POOL",
+			"poolRemainingToPay": "POOL (nog te betalen)",
 			"exclVat": "excl. BTW",
 			"inclVat": "incl. BTW {rates}",
+			"inclVatShort": "incl. BTW",
 			"vatRate": "BTW {rate}%",
 			"cashIn": "Afrekenen",
 			"all": "alles",
@@ -685,8 +757,55 @@
 			"shares": "delen",
 			"itemize": "specificeren",
 			"return": "Terug",
-			"paySelected": "Selectie betalen"
-		}
+			"continueSplit": "Doorgaan",
+			"skipForNow": "Voorlopig overslaan",
+			"paySelected": "Selectie betalen",
+			"includingVatIncluded": "Waarvan (BTW inbegrepen):",
+			"tagProducts": "Producten \"{name}\"",
+			"otherProducts": "Andere producten",
+			"selectItems": "Selecteer artikelen om te betalen",
+			"splitByShares": "Verdelen per delen",
+			"enterNumberOfParts": "Aantal delen",
+			"manualAmount": "Handmatig bedrag",
+			"ok": "OK",
+			"payRemaining": "Rest betalen",
+			"totalAlreadyPaid": "Totaal al betaald (BTW inbegrepen)",
+			"remainingToPay": "Nog te betalen (BTW inbegrepen)",
+			"allPaid": "Alles betaald",
+			"completeSharesFirst": "U bent al begonnen met betalen via \"Splitsen (delen)\". Voltooi alle betalingen en sluit de pool eerst.",
+			"closePool": "Pool sluiten",
+			"globalTicket": "Globaal ticket",
+			"beforeDiscount": "VOOR KORTING",
+			"afterDiscount": "NA KORTING"
+		},
+		"receipt": {
+			"ticket": "Bon (ticket)",
+			"invoice": "Factuur (A4)"
+		},
+		"staffNotes": "Personeelsnotities",
+		"discount": {
+			"title": "Korting",
+			"noDiscount": "Geen korting",
+			"manualPercent": "Handmatig %",
+			"manualPercentPlaceholder": "Voer percentage in (0-100)",
+			"applyToTag": "Toepassen op tag:",
+			"allProducts": "Alle producten",
+			"currentDiscount": "Huidige korting:",
+			"none": "Geen",
+			"motiveLabelOptional": "Reden voor korting (optioneel):",
+			"motivePlaceholder": "bijv. Passeport gourmand",
+			"lockedWarning": "⚠️ Korting kan niet worden gewijzigd nadat de betaling is gestart",
+			"save": "Opslaan"
+		},
+		"midTicket": {
+			"title": "Keuken-/tussenbon instellingen",
+			"topBlankLines": "Aantal lege regels bovenaan de bon (voor klemmen)",
+			"topBlankLinesHint": "Standaard: 0",
+			"printedAt": "Afgedrukt op {date} om {time}",
+			"poolFirstItemAdded": "Tafel geopend op {date} om {time}",
+			"orderCreatedAt": "Bestelling aangemaakt op {date} om {time}"
+		},
+		"useSelectForTags": "Gebruik dropdown voor tags"
 	},
 	"product": {
 		"addedToCart": "Product toegevoegd aan winkelwagen",
@@ -711,7 +830,8 @@
 			"details": "Details",
 			"donate": "Doneer nu",
 			"preorder": "Bestel nu vooraf",
-			"subscribe": "Abonneer nu"
+			"subscribe": "Abonneer nu",
+			"view": "Bekijk product"
 		},
 		"deposit": {
 			"payFullPrice": "Betaal nu de volledige prijs",
@@ -768,7 +888,9 @@
 	},
 	"subscription": {
 		"associated": {
-			"npub": "Geassocieerd met npub: {npub}"
+			"npub": "Geassocieerd met npub: {npub}",
+			"email": "Gekoppeld aan e-mail: {email}",
+			"title": "Gekoppeld aan:"
 		},
 		"cantRenew": "Abonnement hoeft niet te worden verlengd",
 		"cta": {
@@ -776,8 +898,14 @@
 		},
 		"initiallyCreated": "Oorspronkelijk gemaakt: <0></0>",
 		"paidUntil": "Betaald tot: <0></0>",
+		"expiresOn": "Verloopt op",
+		"lastOrder": "Laatste bestelling bekijken",
+		"lastPayment": "Laatste betaling",
+		"listTitle": "Uw abonnementen",
+		"noSubscriptions": "U heeft nog geen abonnementen.",
 		"singleTitle": "Abonnement #{number}",
 		"status": {
+			"active": "actief",
 			"expired": "verlopen"
 		}
 	},

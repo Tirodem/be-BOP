@@ -149,7 +149,8 @@ export async function fetchOrderForUser(orderId: string, params?: { userRoleId?:
 			confirmationBlocksRequired:
 				payment.method === 'bitcoin' ? getConfirmationBlocks(payment.price) : 0,
 			...(payment.bankTransferNumber && { bankTransferNumber: payment.bankTransferNumber }),
-			...(payment.detail && { detail: payment.detail })
+			...(payment.detail && { detail: payment.detail }),
+			...(payment.cashbackAmount && { cashbackAmount: payment.cashbackAmount })
 		})),
 		items: order.items.map((item) => ({
 			quantity: item.quantity,
@@ -195,6 +196,9 @@ export async function fetchOrderForUser(orderId: string, params?: { userRoleId?:
 			chosenVariations: item.chosenVariations
 		})),
 		orderTabSlug: order.orderTabSlug,
+		cartId: order.cartId?.toString(),
+		splitMode: order.splitMode,
+		peopleCountFromPosUi: order.peopleCountFromPosUi,
 		shippingPrice: order.shippingPrice && {
 			amount: order.shippingPrice.amount,
 			currency: order.shippingPrice.currency

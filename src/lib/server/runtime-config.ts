@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import { collections } from './database';
 import { defaultExchangeRate, exchangeRate } from '$lib/stores/exchangeRate';
 import type { Currency } from '$lib/types/Currency';
+import type { SubscriptionDuration } from '$lib/types/SubscriptionDuration';
 import type { DeliveryFees } from '$lib/types/DeliveryFees';
 import { currencies } from '$lib/stores/currencies';
 import {
@@ -71,7 +72,7 @@ const baseConfig = {
 	lightningQrCodeDescription: 'brand' as 'orderUrl' | 'brand' | 'brandAndOrderNumber' | 'none',
 	maintenanceIps: '',
 	brandName: 'My be-BOP',
-	subscriptionDuration: 'month' as 'month' | 'day' | 'hour',
+	subscriptionDuration: 'month' satisfies SubscriptionDuration,
 	subscriptionReminderSeconds: 24 * 60 * 60,
 	reserveStockInMinutes: 20,
 	confirmationBlocksThresholds: {
@@ -95,6 +96,7 @@ const baseConfig = {
 	logo: { isWide: false, pictureId: '', darkModePictureId: '' },
 	faviconPictureId: '',
 	footerLogoId: '',
+	ticketLogoId: '',
 	lnurlPayMetadataJwtSigningKey: '',
 	authLinkJwtSigningKey: '',
 	ssoSecret: '',
@@ -119,7 +121,7 @@ const baseConfig = {
 	cartPreviewInteractive: false,
 	vatExempted: false,
 	vatExemptionReason: '',
-	vatSingleCountry: false,
+	vatSingleCountry: true,
 	vatCountry: 'FR' satisfies CountryAlpha2 as CountryAlpha2,
 	vatNullOutsideSellerCountry: false,
 	displayVatIncludedInProduct: false,
@@ -244,6 +246,9 @@ const baseConfig = {
 	posTabGroups: defaultPosTabGroups(),
 	posPoolEmptyIcon: '✅' as string | undefined,
 	posPoolOccupiedIcon: '⏳' as string | undefined,
+	posMidTicketTopBlankLines: 3,
+	posProductsPerPage: 0,
+	posMobileBreakpoint: 1024,
 	posUseSelectForTags: false,
 	posPrefillTermOfUse: false,
 	posTapToPay: {
@@ -277,13 +282,15 @@ const baseConfig = {
 	posSession: {
 		enabled: false,
 		allowXTicketEditing: false,
-		cashDeltaJustificationMandatory: false
+		cashDeltaJustificationMandatory: false,
+		lockItemsAfterMidTicket: true,
+		forbidTouchWhenSessionClosed: true
 	},
 	displayNewsletterCommercialProspection: false,
 	cartMaxSeparateItems: null as null | number,
 	physicalCartMinAmount: null as null | number,
-	websiteTitle: 'B2Bitcoin be-BOP',
-	websiteShortDescription: "B2Bitcoin's be-BOP store",
+	websiteTitle: 'My be-BOP',
+	websiteShortDescription: 'My be-BOP store description',
 	smtp: {
 		host: '',
 		port: 587,

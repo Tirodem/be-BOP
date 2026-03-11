@@ -13,6 +13,15 @@
 		"vatNumber": "VAT number",
 		"zipCode": "Zip code"
 	},
+	"admin": {
+		"product": {
+			"stockReference": {
+				"label": "Reference another product's stock (optional)",
+				"noReference": "-- No reference (use own stock) --",
+				"warning": "⚠️ This product references another product's stock. Stock changes will affect the referenced product."
+			}
+		}
+	},
 	"ageWarning": {
 		"agreement": "I have read the access conditions, fulfill them and respect them",
 		"navigate": "Continue browsing"
@@ -413,6 +422,12 @@
 		"personalInformation": "Personal Information"
 	},
 	"login": {
+		"error": {
+			"invalidEmail": "Invalid email address",
+			"invalidNpub": "Invalid Nostr npub address",
+			"invalidContactAddress": "Your contact address is invalid (fill either a correct email address or a Nostr npub)",
+			"invalidOrExpiredToken": "Invalid or expired token"
+		},
 		"authenticate": {
 			"ctaCancelLabel": "Back",
 			"ctaLabel": "Confirm",
@@ -452,7 +467,10 @@
 		"addPayment": {
 			"amount": "Payment amount",
 			"cta": "Send a call for payment",
-			"currency": "Payment currency"
+			"currency": "Payment currency",
+			"posSubtype": "Type",
+			"submit": "Add",
+			"title": "Add payment"
 		},
 		"backToOrder": "<< Back to order",
 		"clickQR": "Click on the QR code to pay with your wallet",
@@ -565,8 +583,16 @@
 			"totalExcVat": "Total Excl. VAT",
 			"totalInclVat": "Total Incl. VAT",
 			"totalVat": "Total VAT",
+			"totalWithDiscount": "Total with discount",
 			"unitPrice": "Unit price",
-			"vatFreeReason": "Vat exempted: {reason}"
+			"vatFreeReason": "Vat exempted: {reason}",
+			"peopleCount": "Number of people"
+		},
+		"forwardReceipt": {
+			"cancel": "Cancel",
+			"send": "Send",
+			"success": "Receipt forwarded!",
+			"title": "Forward receipt"
 		},
 		"receiptFullyPaid": "Generate receipt(fully paid)",
 		"receiptPending": "Generate receipt(pending payment)",
@@ -584,6 +610,7 @@
 		"shippingAddress": {
 			"title": "Shipping address"
 		},
+		"noOrdersYet": "No orders yet",
 		"singleTitle": "Order #{number}",
 		"summary": {
 			"fullyPaid": {
@@ -635,6 +662,8 @@
 		},
 		"sessionLink": "POS session",
 		"sessionTouchLink": "POS session - touch screen",
+		"nonEmptyPoolsWarning": "Warning: there are non-empty pools. Please process them properly before closing your PoS Session.",
+		"touchSessionRequired": "If you want to use PoS touchscreen interface, please open session",
 		"useSelectForTags": "Use select menu for product tag selection",
 		"tapToPay": {
 			"inProgress": "The payment will be automatically validated once the external transaction is recorded and validated.",
@@ -642,13 +671,21 @@
 		},
 		"vatFree": "This is a VAT-free order (<0>conditions</0>)",
 		"vatFreeReason": "VAT-free reason",
+		"tagGroups": {
+			"addGroup": "Add Group",
+			"deleteGroup": "Delete Group",
+			"groupNamePlaceholder": "Group Name",
+			"tooManyTagsWarning": "Group \"{groupName}\" has {count} tags. Too many for button mode. Enable \"Use select menu\" option or reduce tags. Continue?"
+		},
 		"touch": {
 			"selectTab": "Select a tab:",
 			"noTabs": "This group has no tabs",
 			"cancel": "Cancel",
+			"back": "← Back",
 			"ticketNumber": "TICKET n°",
 			"exclVat": "EX",
 			"inclVat": "INC",
+			"subtotal": "SUBTOTAL",
 			"total": "TOTAL",
 			"vatBreakdown": "Incl. VAT",
 			"favorites": "FAVORITES",
@@ -656,13 +693,17 @@
 			"pagination": "PAGE {currentPage}/{totalPages}",
 			"tickets": "TICKETS",
 			"save": "SAVE",
+			"moveItems": "Move Items",
 			"pool": "POOL",
 			"openDrawer": "OPEN DRAWER",
 			"pay": "PAY",
 			"notDeveloped": "Not developed yet",
 			"confirmDeleteLastItem": "Do you want to delete the last cart line?",
 			"confirmDeleteAllItems": "Do you want to delete all cart lines?",
-			"maxQuantityReached": "Maximum quantity per order reached ({max})"
+			"maxQuantityReached": "Maximum quantity per order reached ({max})",
+			"itemPrintedCannotDelete": "This item has been printed on a kitchen ticket and cannot be deleted",
+			"itemPrintedCannotReduce": "Cannot reduce quantity below printed amount: {min}",
+			"poolHasPrintedItems": "This pool contains printed items and cannot be deleted"
 		},
 		"itemEdit": {
 			"quantity": "Quantity",
@@ -676,10 +717,13 @@
 		},
 		"split": {
 			"notAvailableYet": "Not available yet",
-			"tabHeader": "Tab {slug}",
-			"tabToPayNow": "Tab {slug} (to pay now)",
+			"tabHeader": "Tab {poolLabel}",
+			"tabToPayNow": "Tab {poolLabel} (to pay now)",
+			"pool": "POOL",
+			"poolRemainingToPay": "POOL (remaining to be paid)",
 			"exclVat": "excl. VAT",
 			"inclVat": "incl. VAT {rates}",
+			"inclVatShort": "incl. VAT",
 			"vatRate": "VAT {rate}%",
 			"cashIn": "Cash in",
 			"all": "all",
@@ -687,10 +731,80 @@
 			"shares": "shares",
 			"itemize": "itemize",
 			"return": "Return",
+			"continueSplit": "Continue",
+			"skipForNow": "Skip for now",
 			"paySelected": "Pay selected",
 			"includingVatIncluded": "Including (VAT included):",
 			"tagProducts": "Tag \"{name}\" products",
-			"otherProducts": "Other products"
+			"otherProducts": "Other products",
+			"selectItems": "Please select items to pay",
+			"splitByShares": "Split by shares",
+			"enterNumberOfParts": "Enter number of parts",
+			"manualAmount": "Manual amount",
+			"ok": "OK",
+			"payRemaining": "Pay Remaining",
+			"totalAlreadyPaid": "Total already paid (incl. VAT)",
+			"remainingToPay": "Remaining to pay (incl. VAT)",
+			"allPaid": "All is paid",
+			"completeSharesFirst": "You have already started paying for the pool through \"Split (shares)\" payments. Please complete all payments and close the pool first. ",
+			"closePool": "Close pool",
+			"globalTicket": "Global ticket",
+			"beforeDiscount": "BEFORE DISCOUNT",
+			"afterDiscount": "AFTER DISCOUNT"
+		},
+		"receipt": {
+			"ticket": "Receipt (ticket)",
+			"invoice": "Invoice (A4)"
+		},
+		"staffNotes": "Staff notes",
+		"btn": {
+			"add": "Add",
+			"cancel": "Cancel",
+			"paid": "Paid",
+			"replace": "Change ▾",
+			"replaceSubmit": "Change",
+			"tapToPay": "Card Tap",
+			"cancelTap": "Stop Tap"
+		},
+		"cashback": {
+			"title": "Cashback ▾",
+			"toPay": "To pay",
+			"paid": "Paid",
+			"change": "Change",
+			"cancel": "Cancel cashback",
+			"validate": "Validate"
+		},
+		"input": {
+			"txNumber": "TX #",
+			"detail": "Detail"
+		},
+		"label": {
+			"amount": "Amount",
+			"currency": "Currency",
+			"method": "Method",
+			"subtype": "Type"
+		},
+		"discount": {
+			"title": "Discount",
+			"noDiscount": "No discount",
+			"manualPercent": "Manual %",
+			"manualPercentPlaceholder": "Enter percentage (0-100)",
+			"applyToTag": "Apply to tag :",
+			"allProducts": "All products",
+			"currentDiscount": "Current discount:",
+			"none": "None",
+			"motiveLabelOptional": "Discount motive (optional):",
+			"motivePlaceholder": "e.g., Passeport gourmand",
+			"lockedWarning": "⚠️ Cannot modify discount after payment has started",
+			"save": "Save"
+		},
+		"midTicket": {
+			"title": "Kitchen/Mid-Ticket Settings",
+			"topBlankLines": "Number of blank lines at the top of mid-ticket (for clamping)",
+			"topBlankLinesHint": "Default: 0",
+			"printedAt": "Printed on {date} at {time}",
+			"poolFirstItemAdded": "Table opened on {date} at {time}",
+			"orderCreatedAt": "Order created on {date} at {time}"
 		}
 	},
 	"product": {
@@ -716,7 +830,8 @@
 			"details": "Details",
 			"donate": "Donate now",
 			"preorder": "Pre-order now",
-			"subscribe": "Subscribe now"
+			"subscribe": "Subscribe now",
+			"view": "View Product"
 		},
 		"deposit": {
 			"payFullPrice": "Pay full price now",
@@ -783,8 +898,14 @@
 		},
 		"initiallyCreated": "Initially created: <0></0>",
 		"paidUntil": "Paid until: <0></0>",
+		"expiresOn": "Expires on",
+		"lastOrder": "View last order",
+		"lastPayment": "Last payment",
+		"listTitle": "Your subscriptions",
+		"noSubscriptions": "You have no subscriptions yet.",
 		"singleTitle": "Subscription #{number}",
 		"status": {
+			"active": "active",
 			"expired": "expired"
 		}
 	},

@@ -10,7 +10,7 @@
 	export let printHistory: PrintHistoryEntry[] = [];
 	export let onConfirm: (options: PrintTicketOptions) => void;
 	export let onCancel: () => void;
-	export let onReprintFromHistory: (entry: PrintHistoryEntry) => void;
+	export let onReprintFromHistory: (entry: PrintHistoryEntry, historyIndex: number) => void;
 
 	let activeTab: 'print' | 'history' = 'print';
 	let mode: 'all' | 'newlyOrdered' = 'all';
@@ -48,8 +48,8 @@
 		activeTab = 'print';
 	}
 
-	function handleReprint(entry: PrintHistoryEntry) {
-		onReprintFromHistory(entry);
+	function handleReprint(entry: PrintHistoryEntry, historyIndex: number) {
+		onReprintFromHistory(entry, historyIndex);
 		isOpen = false;
 		activeTab = 'print';
 	}
@@ -63,7 +63,7 @@
 	>
 		<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 		<div
-			class="bg-white p-4 rounded-lg min-w-[800px] max-w-[90%] max-h-[90vh] shadow-lg flex flex-col"
+			class="bg-white p-4 rounded-lg w-[95vw] md:w-auto md:min-w-[800px] max-w-[90%] max-h-[90vh] shadow-lg flex flex-col"
 			on:click|stopPropagation
 			on:keydown|stopPropagation
 			role="dialog"
@@ -148,7 +148,7 @@
 						</div>
 					</div>
 				{:else if activeTab === 'history'}
-					<div class="max-h-[500px] overflow-y-auto">
+					<div class="max-h-[500px] overflow-y-auto overflow-x-auto">
 						{#if printHistory.length === 0}
 							<p class="text-center text-gray-500 py-8 text-xl">No print history available</p>
 						{:else}
@@ -177,7 +177,7 @@
 												<button
 													type="button"
 													class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-base font-bold rounded"
-													on:click={() => handleReprint(entry)}
+													on:click={() => handleReprint(entry, printHistory.length - 1 - index)}
 												>
 													PRINT
 												</button>

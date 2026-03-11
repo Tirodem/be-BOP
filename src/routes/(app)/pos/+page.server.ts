@@ -7,12 +7,15 @@ import { COUNTRY_ALPHA2S, type CountryAlpha2 } from '$lib/types/Country';
 import {
 	addToOrderTab,
 	checkoutOrderTab,
+	getOrCreateOrderTab,
+	hasSharesPaymentStarted,
 	removeFromOrderTab,
 	removeOrderTab
 } from '$lib/server/orderTab';
 import { removeUserCarts } from '$lib/server/cart';
-import { getCurrentPosSession } from '$lib/server/pos-sessions';
+import { getCurrentPosSession, requireOpenPosSession } from '$lib/server/pos-sessions';
 import { runtimeConfig } from '$lib/server/runtime-config';
+import { resolvePoolLabel } from '$lib/types/PosTabGroup';
 
 export const load = async (event) => {
 	const lastOrders = await collections.orders
@@ -27,6 +30,14 @@ export const load = async (event) => {
 	});
 
 	const currentPosSession = runtimeConfig.posSession.enabled ? await getCurrentPosSession() : null;
+
+	const nonEmptyPoolSlugs = currentPosSession
+		? (
+				await collections.orderTabs
+					.find({ 'items.0': { $exists: true } }, { projection: { slug: 1 } })
+					.toArray()
+		  ).map((tab) => tab.slug)
+		: [];
 
 	return {
 		orders: lastOrders.map((order) => ({
@@ -59,12 +70,16 @@ export const load = async (event) => {
 						currentPosSession.openedBy.userLogin ||
 						currentPosSession.openedBy.userId
 			  }
-			: null
+			: null,
+		nonEmptyPoolLabels: nonEmptyPoolSlugs.map((slug) =>
+			resolvePoolLabel(runtimeConfig.posTabGroups, slug)
+		)
 	};
 };
 
 export const actions: Actions = {
 	addToTab: async ({ request }) => {
+		await requireOpenPosSession();
 		const formData = await request.formData();
 		const { tabSlug, productId } = z
 			.object({
@@ -81,6 +96,7 @@ export const actions: Actions = {
 		}
 	},
 	removeFromTab: async ({ request }) => {
+		await requireOpenPosSession();
 		const formData = await request.formData();
 		const { tabSlug, tabItemId } = z
 			.object({
@@ -91,9 +107,23 @@ export const actions: Actions = {
 				tabSlug: formData.get('tabSlug'),
 				tabItemId: formData.get('tabItemId')
 			});
+
+		const orderTab = await getOrCreateOrderTab({ slug: tabSlug });
+		if (await hasSharesPaymentStarted(orderTab._id)) {
+			return fail(403, { error: 'sharesPaymentStarted' });
+		}
+
+		if (runtimeConfig.posSession.lockItemsAfterMidTicket) {
+			const item = orderTab.items.find((i) => i._id.toString() === tabItemId);
+			if (item && (item.printedQuantity ?? 0) > 0) {
+				return fail(403, { error: 'itemPrintedCannotDelete' });
+			}
+		}
+
 		await removeFromOrderTab({ tabSlug, tabItemId });
 	},
 	removeTab: async ({ request }) => {
+		await requireOpenPosSession();
 		const formData = await request.formData();
 		const { tabSlug } = z
 			.object({
@@ -102,9 +132,22 @@ export const actions: Actions = {
 			.parse({
 				tabSlug: formData.get('tabSlug')
 			});
+
+		const orderTab = await getOrCreateOrderTab({ slug: tabSlug });
+		if (await hasSharesPaymentStarted(orderTab._id)) {
+			return fail(403, { error: 'sharesPaymentStarted' });
+		}
+
+		if (runtimeConfig.posSession.lockItemsAfterMidTicket) {
+			if (orderTab.items.some((i) => (i.printedQuantity ?? 0) > 0)) {
+				return fail(403, { error: 'poolHasPrintedItems' });
+			}
+		}
+
 		await removeOrderTab({ tabSlug });
 	},
 	checkoutTab: async ({ request, locals }) => {
+		await requireOpenPosSession();
 		const formData = await request.formData();
 		const { tabSlug } = z
 			.object({

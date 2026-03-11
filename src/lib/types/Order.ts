@@ -160,7 +160,15 @@ export interface OrderPayment {
 	lastStatusNotified?: OrderPaymentStatus;
 	bankTransferNumber?: string;
 	detail?: string;
+	cashbackAmount?: Price;
 }
+
+export type SerializedOrderPayment = Omit<OrderPayment, '_id'> & {
+	id: string;
+	tapToPayOnActivationUrl?: string;
+	posSubtypeHasProcessor?: boolean;
+	confirmationBlocksRequired: number;
+};
 
 export const FAKE_ORDER_INVOICE_NUMBER = -1;
 
@@ -236,6 +244,10 @@ export interface Order extends Timestamps {
 		tickets?: Array<Ticket['ticketId']>;
 	}>;
 	orderTabSlug?: string;
+	orderTabId?: ObjectId;
+	cartId?: ObjectId;
+	splitMode?: 'items' | 'shares';
+	peopleCountFromPosUi?: number;
 
 	shippingAddress?: OrderAddress;
 	billingAddress?: OrderAddress;
@@ -342,7 +354,8 @@ export type SimplifiedOrder = Omit<Order, 'payments' | 'notes'> & {
 export function orderAmountWithNoPaymentsCreated(
 	order: Pick<Order, 'currencySnapshot'> & {
 		payments: Pick<OrderPayment, 'currencySnapshot' | 'status'>[];
-	}
+	},
+	opts?: { ignorePendingPayments?: boolean }
 ): number {
 	return sumCurrency(order.currencySnapshot.main.totalPrice.currency, [
 		{
@@ -350,7 +363,11 @@ export function orderAmountWithNoPaymentsCreated(
 			currency: order.currencySnapshot.main.totalPrice.currency
 		},
 		...order.payments
-			.filter((payment) => payment.status === 'pending' || payment.status === 'paid')
+			.filter((payment) =>
+				opts?.ignorePendingPayments
+					? payment.status === 'paid'
+					: payment.status === 'pending' || payment.status === 'paid'
+			)
 			.map((payment) => ({
 				amount: -payment.currencySnapshot.main.price.amount,
 				currency: payment.currencySnapshot.main.price.currency

@@ -1,9 +1,12 @@
 import {
 	closePosSession,
 	getCurrentPosSession,
-	calculateDailyIncomes
+	calculateDailyIncomes,
+	calculateTotalCashback
 } from '$lib/server/pos-sessions';
+import { collections } from '$lib/server/database';
 import { runtimeConfig } from '$lib/server/runtime-config';
+import { resolvePoolLabel } from '$lib/types/PosTabGroup';
 import { error, redirect } from '@sveltejs/kit';
 import { ObjectId } from 'mongodb';
 import { CURRENCIES } from '$lib/types/Currency';
@@ -18,6 +21,12 @@ export const load = async ({ locals }: { locals: App.Locals }) => {
 	}
 
 	const dailyIncomes = await calculateDailyIncomes(posSession);
+	const cashbackTotal = await calculateTotalCashback(posSession);
+	const nonEmptyPoolSlugs = (
+		await collections.orderTabs
+			.find({ 'items.0': { $exists: true } }, { projection: { slug: 1 } })
+			.toArray()
+	).map((tab) => tab.slug);
 
 	return {
 		session: {
@@ -31,13 +40,17 @@ export const load = async ({ locals }: { locals: App.Locals }) => {
 			amount: inc.amount,
 			currency: inc.currency
 		})),
+		cashbackTotal: cashbackTotal.amount,
 		cashDeltaJustificationMandatory: runtimeConfig.posSession.cashDeltaJustificationMandatory,
 		user: locals.user
 			? {
 					alias: locals.user.alias,
 					login: locals.user.login
 			  }
-			: null
+			: null,
+		nonEmptyPoolLabels: nonEmptyPoolSlugs.map((slug) =>
+			resolvePoolLabel(runtimeConfig.posTabGroups, slug)
+		)
 	};
 };
 

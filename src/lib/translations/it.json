@@ -13,6 +13,15 @@
 		"vatNumber": "Numero IVA",
 		"zipCode": "Codice d'avviamento postale"
 	},
+	"admin": {
+		"product": {
+			"stockReference": {
+				"label": "Riferimento allo stock di un altro prodotto (opzionale)",
+				"noReference": "-- Nessun riferimento (usa stock proprio) --",
+				"warning": "⚠️ Questo prodotto fa riferimento allo stock di un altro prodotto. Le modifiche allo stock influenzeranno il prodotto di riferimento."
+			}
+		}
+	},
 	"ageWarning": {
 		"agreement": "Ho letto le condizioni di accesso, le adempio e le rispetto",
 		"navigate": "Continua la navigazione"
@@ -413,6 +422,12 @@
 		"personalInformation": "Informazioni personali"
 	},
 	"login": {
+		"error": {
+			"invalidEmail": "Indirizzo email non valido",
+			"invalidNpub": "Indirizzo Nostr npub non valido",
+			"invalidContactAddress": "Il tuo indirizzo di contatto non è valido (inserisci un indirizzo email corretto o un npub Nostr)",
+			"invalidOrExpiredToken": "Token non valido o scaduto"
+		},
 		"authenticate": {
 			"ctaCancelLabel": "Indietro",
 			"ctaLabel": "Conferma",
@@ -452,7 +467,10 @@
 		"addPayment": {
 			"amount": "Somma del pagamento",
 			"cta": "Invia una chiamata per il pagamento",
-			"currency": "valuta del pagamento"
+			"currency": "valuta del pagamento",
+			"posSubtype": "Tipo",
+			"submit": "Aggiungi",
+			"title": "Aggiungi pagamento"
 		},
 		"backToOrder": "<< ritorna all'ordine",
 		"clickQR": "Clicca sul codice QR per pagare con il tuo portafoglio",
@@ -565,8 +583,16 @@
 			"totalExcVat": "Totale IVA esclusa",
 			"totalInclVat": "Totale IVA inclusa",
 			"totalVat": "Totale IVA",
+			"totalWithDiscount": "Totale con sconto",
 			"unitPrice": "Prezzo unitario",
-			"vatFreeReason": "Esente dall'IVA: {reason}"
+			"vatFreeReason": "Esente dall'IVA: {reason}",
+			"peopleCount": "Numero di persone"
+		},
+		"forwardReceipt": {
+			"cancel": "Annulla",
+			"send": "Invia",
+			"success": "Ricevuta inoltrata!",
+			"title": "Inoltra ricevuta"
 		},
 		"receiptFullyPaid": "Genera il ticket (pagato completamente)",
 		"receiptPending": "Genera il ticket (pagamento in attesa)",
@@ -584,6 +610,7 @@
 		"shippingAddress": {
 			"title": "Indirizzo di spedizione"
 		},
+		"noOrdersYet": "Nessun ordine per il momento",
 		"singleTitle": "Ordine #{number}",
 		"summary": {
 			"fullyPaid": {
@@ -606,6 +633,33 @@
 	"pos": {
 		"adminInterface": "Interfaccia dell'amministratore",
 		"applyGiftDiscount": "Come utente POS applico uno <0>sconto regalo</0>.",
+		"btn": {
+			"add": "Aggiungi",
+			"cancel": "Annulla",
+			"cancelTap": "Ferma Tap",
+			"paid": "Pagato",
+			"replace": "Modifica ▾",
+			"replaceSubmit": "Modifica",
+			"tapToPay": "Pagamento carta"
+		},
+		"cashback": {
+			"title": "Resto ▾",
+			"toPay": "Da pagare",
+			"paid": "Pagato",
+			"change": "Resto",
+			"cancel": "Annulla resto",
+			"validate": "Conferma"
+		},
+		"input": {
+			"detail": "Dettaglio",
+			"txNumber": "TX n°"
+		},
+		"label": {
+			"amount": "Importo",
+			"currency": "Valuta",
+			"method": "Metodo",
+			"subtype": "Tipo"
+		},
 		"cancelOrderMessage": "Sei sicuro di voler cnacel l'intero ordine?",
 		"cta": {
 			"cancelMultiPayOrder": "Annullare l'ordine",
@@ -635,19 +689,29 @@
 		},
 		"sessionLink": "Sessione POS",
 		"sessionTouchLink": "Sessione POS - touch screen",
+		"nonEmptyPoolsWarning": "Attenzione: ci sono tavoli non vuoti. Si prega di gestirli correttamente prima di chiudere la sessione PoS.",
+		"touchSessionRequired": "Se vuoi usare l'interfaccia touchscreen del POS, apri una sessione",
 		"tapToPay": {
 			"inProgress": "Il pagamento sarà convalidato automaticamente quando la transazione esterna sarà registrata e convalidata.",
 			"inUseByOtherOrder": "Il pagamento tap-to-pay è disattivato perché un altro ordine è in corso con questo metodo di pagamento. Puoi incassare manualmente e poi inserire il numero di transazione in questo campo."
 		},
 		"vatFree": "Questo è un ordine esente da IVA (<0>conditions</0>)",
 		"vatFreeReason": "ragione dell'esenzione da IVA",
+		"tagGroups": {
+			"addGroup": "Aggiungi gruppo",
+			"deleteGroup": "Elimina gruppo",
+			"groupNamePlaceholder": "Nome del gruppo",
+			"tooManyTagsWarning": "Il gruppo \"{groupName}\" ha {count} tag. Troppi per la modalità pulsante. Attivare l'opzione \"Usa menu di selezione\" o ridurre i tag. Continuare?"
+		},
 		"touch": {
 			"selectTab": "Seleziona una scheda:",
 			"noTabs": "Questo gruppo non ha schede",
 			"cancel": "Annulla",
+			"back": "← Indietro",
 			"ticketNumber": "BIGLIETTO n°",
 			"exclVat": "NET",
 			"inclVat": "LOR",
+			"subtotal": "SUBTOTALE",
 			"total": "TOTALE",
 			"vatBreakdown": "Di cui IVA",
 			"favorites": "PREFERITI",
@@ -655,12 +719,17 @@
 			"pagination": "PAGINA {currentPage}/{totalPages}",
 			"tickets": "BIGLIETTI",
 			"save": "SALVA",
+			"moveItems": "Sposta articoli",
 			"pool": "POOL",
 			"openDrawer": "APRI CASSETTO",
 			"pay": "PAGA",
 			"notDeveloped": "Non ancora sviluppato",
 			"confirmDeleteLastItem": "Vuoi eliminare l'ultima riga del carrello?",
-			"confirmDeleteAllItems": "Vuoi eliminare tutte le righe del carrello?"
+			"confirmDeleteAllItems": "Vuoi eliminare tutte le righe del carrello?",
+			"maxQuantityReached": "Quantità massima per ordine raggiunta ({max})",
+			"itemPrintedCannotDelete": "Questo articolo è stato stampato su un ticket cucina e non può essere eliminato",
+			"itemPrintedCannotReduce": "Non è possibile ridurre la quantità al di sotto della quantità stampata: {min}",
+			"poolHasPrintedItems": "Questo pool contiene articoli stampati e non può essere eliminato"
 		},
 		"itemEdit": {
 			"quantity": "Quantità",
@@ -674,10 +743,13 @@
 		},
 		"split": {
 			"notAvailableYet": "Non ancora disponibile",
-			"tabHeader": "Scheda {slug}",
-			"tabToPayNow": "Scheda {slug} (da pagare ora)",
+			"tabHeader": "Scheda {poolLabel}",
+			"tabToPayNow": "Scheda {poolLabel} (da pagare ora)",
+			"pool": "POOL",
+			"poolRemainingToPay": "POOL (da pagare)",
 			"exclVat": "esclusa IVA",
 			"inclVat": "inclusa IVA {rates}",
+			"inclVatShort": "IVA incl.",
 			"vatRate": "IVA {rate}%",
 			"cashIn": "Incassa",
 			"all": "tutto",
@@ -685,8 +757,55 @@
 			"shares": "quote",
 			"itemize": "dettagliare",
 			"return": "Indietro",
-			"paySelected": "Paga selezionati"
-		}
+			"continueSplit": "Continua",
+			"skipForNow": "Salta per ora",
+			"paySelected": "Paga selezionati",
+			"includingVatIncluded": "Di cui (IVA inclusa):",
+			"tagProducts": "Prodotti \"{name}\"",
+			"otherProducts": "Altri prodotti",
+			"selectItems": "Seleziona gli articoli da pagare",
+			"splitByShares": "Dividi per quote",
+			"enterNumberOfParts": "Numero di quote",
+			"manualAmount": "Importo manuale",
+			"ok": "OK",
+			"payRemaining": "Paga il resto",
+			"totalAlreadyPaid": "Totale già pagato (IVA inclusa)",
+			"remainingToPay": "Da pagare (IVA inclusa)",
+			"allPaid": "Tutto pagato",
+			"completeSharesFirst": "Hai già iniziato a pagare il pool tramite pagamenti \"Dividi (quote)\". Completa tutti i pagamenti e chiudi prima il pool.",
+			"closePool": "Chiudi pool",
+			"globalTicket": "Ticket globale",
+			"beforeDiscount": "PRIMA DELLO SCONTO",
+			"afterDiscount": "DOPO LO SCONTO"
+		},
+		"receipt": {
+			"ticket": "Ricevuta (ticket)",
+			"invoice": "Fattura (A4)"
+		},
+		"staffNotes": "Note del personale",
+		"discount": {
+			"title": "Sconto",
+			"noDiscount": "Nessuno sconto",
+			"manualPercent": "% manuale",
+			"manualPercentPlaceholder": "Inserisci percentuale (0-100)",
+			"applyToTag": "Applica al tag:",
+			"allProducts": "Tutti i prodotti",
+			"currentDiscount": "Sconto attuale:",
+			"none": "Nessuno",
+			"motiveLabelOptional": "Motivo dello sconto (opzionale):",
+			"motivePlaceholder": "es. Passaporto gourmet",
+			"lockedWarning": "⚠️ Impossibile modificare lo sconto dopo l'inizio del pagamento",
+			"save": "Salva"
+		},
+		"midTicket": {
+			"title": "Impostazioni ticket cucina/intermedio",
+			"topBlankLines": "Numero di righe vuote in cima al ticket (per il fissaggio)",
+			"topBlankLinesHint": "Predefinito: 0",
+			"printedAt": "Stampato il {date} alle {time}",
+			"poolFirstItemAdded": "Tavolo aperto il {date} alle {time}",
+			"orderCreatedAt": "Ordine creato il {date} alle {time}"
+		},
+		"useSelectForTags": "Usa menu a tendina per i tag"
 	},
 	"product": {
 		"addedToCart": "Prodotto aggiunto al carrello",
@@ -711,7 +830,8 @@
 			"details": "Dettagli",
 			"donate": "Fa' un offerta ora",
 			"preorder": "Preordina ora ",
-			"subscribe": "Sottoscrivi ora"
+			"subscribe": "Sottoscrivi ora",
+			"view": "Vedi prodotto"
 		},
 		"deposit": {
 			"payFullPrice": "Paga il prezzo integrale ora",
@@ -768,7 +888,9 @@
 	},
 	"subscription": {
 		"associated": {
-			"npub": "Associato a npub: {npub}"
+			"npub": "Associato a npub: {npub}",
+			"email": "Associato a email: {email}",
+			"title": "Associato a:"
 		},
 		"cantRenew": "Abbonamento non soggetto a rinnovo",
 		"cta": {
@@ -776,8 +898,14 @@
 		},
 		"initiallyCreated": "Inizialmente creato: <0></0>",
 		"paidUntil": "Pagato fino al <0></0>",
+		"expiresOn": "Scade il",
+		"lastOrder": "Visualizza ultimo ordine",
+		"lastPayment": "Ultimo pagamento",
+		"listTitle": "I tuoi abbonamenti",
+		"noSubscriptions": "Non hai ancora abbonamenti.",
 		"singleTitle": "Abbonamento #{number}",
 		"status": {
+			"active": "attivo",
 			"expired": "scaduto"
 		}
 	},

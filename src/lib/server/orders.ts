@@ -22,13 +22,14 @@ import {
 	subSeconds
 } from 'date-fns';
 import { runtimeConfig } from './runtime-config';
+import type { SubscriptionDuration } from '$lib/types/SubscriptionDuration';
 import { freeProductsForUser, generateSubscriptionNumber } from './subscriptions';
 import {
 	checkProductVariationsIntegrity,
 	productPriceWithVariations,
 	type Product
 } from '$lib/types/Product';
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import { toSatoshis } from '$lib/utils/toSatoshis';
 import {
 	currentWallet,
@@ -46,6 +47,7 @@ import { CURRENCY_UNIT, FRACTION_DIGITS_PER_CURRENCY, type Currency } from '$lib
 import { sumCurrency } from '$lib/utils/sumCurrency';
 import { refreshAvailableStockInDb } from './product';
 import { checkCartItems } from './cart';
+import { handleOrderTabAfterPayment } from './orderTab';
 import { userQuery } from './user';
 import { SMTP_USER } from '$lib/server/env-config';
 import { toCurrency } from '$lib/utils/toCurrency';
@@ -146,6 +148,7 @@ export async function onOrderPayment(
 		fees?: Price;
 		tapToPay?: { expiresAt: Date };
 		providedSession?: ClientSession;
+		cashbackAmount?: Price;
 	}
 ): Promise<Order> {
 	const invoiceNumber = ((await lastInvoiceNumber()) ?? 0) + 1;
@@ -176,6 +179,9 @@ export async function onOrderPayment(
 					}),
 					...(params?.detail && {
 						'payments.$.detail': params.detail
+					}),
+					...(params?.cashbackAmount && {
+						'payments.$.cashbackAmount': params.cashbackAmount
 					}),
 					'payments.$.paidAt': paidAt,
 					...(isOrderFullyPaid(order) && {
@@ -482,6 +488,30 @@ export async function onOrderPaymentFailed(
 	return order;
 }
 
+export async function cancelPayment(
+	params: { id: string; paymentId: string },
+	redirectUrl: string
+): Promise<never> {
+	const order = await collections.orders.findOne({ _id: params.id });
+
+	if (!order) {
+		throw error(404, 'Order not found');
+	}
+
+	const payment = order.payments.find((p) => p._id.equals(params.paymentId));
+
+	if (!payment) {
+		throw error(404, 'Payment not found');
+	}
+
+	if (payment.status !== 'pending') {
+		throw error(400, 'Payment is not pending');
+	}
+
+	await onOrderPaymentFailed(order, payment, 'canceled');
+	throw redirect(303, redirectUrl);
+}
+
 export async function lastInvoiceNumber(): Promise<number | undefined> {
 	return (
 		await collections.orders
@@ -583,6 +613,7 @@ export async function createOrder(
 		onLocation?: boolean;
 		paymentTimeOut?: number;
 		posSubtype?: string;
+		peopleCountFromPosUi?: number;
 		session?: ClientSession;
 	}
 ): Promise<Order['_id']> {
@@ -950,7 +981,10 @@ export async function createOrder(
 		throw error(400, 'Missing billing address for deliveryless order');
 	}
 
-	if (paymentMethod === 'free' && totalSatoshis !== 0) {
+	if (
+		paymentMethod === 'free' &&
+		toCurrency(runtimeConfig.mainCurrency, totalSatoshis, 'SAT') > 0
+	) {
 		throw error(400, "You can't use free payment method on this order");
 	}
 
@@ -1221,6 +1255,20 @@ export async function createOrder(
 				})
 			);
 		}
+
+		const posDiscount = params.cart?.orderTabId
+			? (
+					await collections.orderTabs.findOne(
+						{ _id: params.cart.orderTabId },
+						{ projection: { discount: 1 } }
+					)
+			  )?.discount
+			: undefined;
+
+		// if discount is tag-based
+		const posDiscountTagName = posDiscount?.tagId
+			? (await collections.tags.findOne({ _id: posDiscount.tagId }))?.name
+			: undefined;
 
 		await withTransaction(async (session) => {
 			const order: Order = {
@@ -1496,13 +1544,25 @@ export async function createOrder(
 					...(items.some((item) => item.discountPercentage)
 						? [
 								{
-									content: `Discount applied: ${items
+									content: `Discount applied${
+										posDiscount
+											? ` (${posDiscount.percentage}% ${
+													posDiscountTagName ? `"${posDiscountTagName}"` : 'for ALL'
+											  })`
+											: ''
+									}: ${items
 										.filter((item) => item.discountPercentage)
 										.map(
 											(item) =>
 												`${item.product.name} (${item.product._id}): ${item.discountPercentage}%`
 										)
-										.join(', ')} because of subscription ${usedSubIds.join(', ')}`,
+										.join(', ')}${
+										posDiscount?.motive
+											? ` (motive: ${posDiscount.motive})`
+											: usedSubIds.length
+											? ` because of subscription ${usedSubIds.join(', ')}`
+											: ''
+									}`,
 									createdAt: new Date(),
 									role: null
 								}
@@ -1529,7 +1589,15 @@ export async function createOrder(
 				}),
 				...(params.engagements && { engagements: params.engagements }),
 				...(params.onLocation !== undefined && { onLocation: params.onLocation }),
-				...(params.cart?.orderTabSlug && { orderTabSlug: params.cart.orderTabSlug })
+				...(params.cart?.orderTabSlug && {
+					orderTabSlug: params.cart.orderTabSlug,
+					orderTabId: params.cart.orderTabId,
+					cartId: params.cart._id,
+					splitMode: params.cart.splitMode
+				}),
+				...(params.peopleCountFromPosUi !== undefined && {
+					peopleCountFromPosUi: params.peopleCountFromPosUi
+				})
 			};
 			await collections.orders.insertOne(order, { session });
 
@@ -1562,8 +1630,7 @@ export async function createOrder(
 					await collections.orderTabs.updateMany(
 						{ slug: order.orderTabSlug },
 						{
-							$unset: { 'items.$[elem].cartId': 1 },
-							$set: { 'items.$[elem].orderId': order._id.toString() }
+							$unset: { 'items.$[elem].cartId': 1 }
 						},
 						{
 							arrayFilters: [{ 'elem.cartId': params.cart._id }],
@@ -2086,15 +2153,24 @@ export async function addOrderPayment(
 	price: Price,
 	/**
 	 * `null` expiresAt means the payment method has no expiration
+	 * `ignorePendingPayments` allows creating new payment even if pending payments cover full amount (for PoS)
 	 */
-	opts?: { expiresAt?: Date | null; session?: ClientSession; posSubtype?: string }
+	opts?: {
+		expiresAt?: Date | null;
+		session?: ClientSession;
+		posSubtype?: string;
+		ignorePendingPayments?: boolean;
+	}
 ) {
 	if (order.status !== 'pending') {
 		throw error(400, 'Order is not pending');
 	}
 
-	if (paymentMethod !== 'free' && isOrderFullyPaid(order, { includePendingOrders: true })) {
-		throw error(400, 'Order already fully paid with pending payments');
+	if (
+		paymentMethod !== 'free' &&
+		isOrderFullyPaid(order, { includePendingOrders: !opts?.ignorePendingPayments })
+	) {
+		throw error(400, 'Order already fully paid');
 	}
 
 	// We reuse the same currencies as previous payments
@@ -2103,26 +2179,29 @@ export async function addOrderPayment(
 	const priceReferenceCurrency = order.currencySnapshot.priceReference.totalPrice.currency;
 	const accountingCurrency = order.currencySnapshot.accounting?.totalPrice.currency;
 
+	const remainingAmount = orderAmountWithNoPaymentsCreated(order, {
+		ignorePendingPayments: opts?.ignorePendingPayments
+	});
 	const priceToPay =
-		toCurrency(mainCurrency, price.amount, price.currency) <=
-		orderAmountWithNoPaymentsCreated(order)
+		toCurrency(mainCurrency, price.amount, price.currency) <= remainingAmount
 			? price
-			: {
-					amount: orderAmountWithNoPaymentsCreated(order),
-					currency: mainCurrency
-			  };
+			: { amount: remainingAmount, currency: mainCurrency };
 
 	if (paymentMethod !== 'free' && priceToPay.amount < CURRENCY_UNIT[priceToPay.currency]) {
-		throw error(400, 'Order already fully paid with pending payments');
+		throw error(400, 'Order already fully paid');
 	}
 
 	const paymentId = new ObjectId();
 	const expiresAt =
 		opts?.expiresAt !== undefined ? opts.expiresAt : paymentMethodExpiration(paymentMethod);
 
+	const isFreePayment = paymentMethod === 'free';
+	const paidAt = isFreePayment ? new Date() : undefined;
+
 	const payment: OrderPayment = {
 		_id: paymentId,
-		status: 'pending',
+		status: isFreePayment ? 'paid' : 'pending',
+		...(paidAt && { paidAt }),
 		method: paymentMethod,
 		price: paymentPrice(paymentMethod, priceToPay),
 		...(paymentMethod === 'point-of-sale' && opts?.posSubtype && { posSubtype: opts.posSubtype }),
@@ -2178,6 +2257,12 @@ export async function addOrderPayment(
 		{ session: opts?.session }
 	);
 
+	// free payments creating as 'paid'
+	if (isFreePayment) {
+		order.payments.push(payment);
+		await onOrderPayment(order, payment, payment.price, { providedSession: opts?.session });
+	}
+
 	return payment;
 }
 
@@ -2197,11 +2282,16 @@ function addDiscountFreeProducts(
 	}
 }
 
-const subscriptionDuration: Duration = {
-	hour: { hours: 1 },
-	day: { days: 1 },
-	month: { months: 1 }
-}[runtimeConfig.subscriptionDuration] satisfies Duration;
+function getSubscriptionDuration(): Duration {
+	const durations: Record<SubscriptionDuration, Duration> = {
+		hour: { hours: 1 },
+		day: { days: 1 },
+		week: { weeks: 1 },
+		month: { months: 1 },
+		year: { years: 1 }
+	};
+	return durations[runtimeConfig.subscriptionDuration as SubscriptionDuration];
+}
 
 async function applyOrderSubscriptionsDiscounts(order: Order, session: ClientSession) {
 	const subscriptionProducts = order.items.filter((item) => item.product.type === 'subscription');
@@ -2230,7 +2320,7 @@ async function applyOrderSubscriptionsDiscounts(order: Order, session: ClientSes
 			for (const discount of discountsForSubscription) {
 				addDiscountFreeProducts(discount, updatedFreeProductsById);
 			}
-			const newPaidUntil = add(max([existing.paidUntil, new Date()]), subscriptionDuration);
+			const newPaidUntil = add(max([existing.paidUntil, new Date()]), getSubscriptionDuration());
 
 			const archivedNotifications = existing.notifications.map((notif) => ({
 				...notif,
@@ -2286,7 +2376,7 @@ async function applyOrderSubscriptionsDiscounts(order: Order, session: ClientSes
 					number: await generateSubscriptionNumber(),
 					user: order.user,
 					productId: subscription.product._id,
-					paidUntil: add(new Date(), subscriptionDuration),
+					paidUntil: add(new Date(), getSubscriptionDuration()),
 					createdAt: new Date(),
 					updatedAt: new Date(),
 					notifications: [],
@@ -2299,6 +2389,10 @@ async function applyOrderSubscriptionsDiscounts(order: Order, session: ClientSes
 }
 
 export async function updateAfterOrderPaid(order: Order, session: ClientSession) {
+	if (order.orderTabSlug) {
+		await handleOrderTabAfterPayment({ order, session });
+	}
+
 	if (order.items.some((item) => item.product.type === 'subscription')) {
 		await collections.scheduleEvents.updateMany(
 			{ orderId: order._id },
@@ -2493,9 +2587,11 @@ export async function updateAfterOrderPaid(order: Order, session: ClientSession)
 
 	// Update product stock in DB
 	for (const item of order.items.filter((item) => item.product.stock)) {
+		const productIdToDecrement = item.product.stockReference?.productId || item.product._id;
+
 		await collections.products.updateOne(
 			{
-				_id: item.product._id
+				_id: productIdToDecrement
 			},
 			{
 				$inc: { 'stock.total': -item.quantity, 'stock.available': -item.quantity },

@@ -2,7 +2,7 @@ import { collections } from './database';
 import { runtimeConfig } from './runtime-config';
 import type { PosSession, PosSessionUser, PosSessionIncome } from '$lib/types/PosSession';
 import { ObjectId } from 'mongodb';
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import type { Currency } from '$lib/types/Currency';
 import { FRACTION_DIGITS_PER_CURRENCY } from '$lib/types/Currency';
 import { queueEmail } from './email';
@@ -10,6 +10,12 @@ import type { PaymentMethod } from './payment-methods';
 
 export async function getCurrentPosSession(): Promise<PosSession | null> {
 	return await collections.posSessions.findOne({ status: 'active' }, { sort: { openedAt: -1 } });
+}
+
+export async function requireOpenPosSession(): Promise<void> {
+	if (runtimeConfig.posSession.forbidTouchWhenSessionClosed && !(await getCurrentPosSession())) {
+		throw redirect(303, '/pos?errorMessage=pos-touch-session-required');
+	}
 }
 
 export async function getLastClosedSession(): Promise<PosSession | null> {
@@ -70,7 +76,10 @@ export async function openPosSession(params: {
 export async function calculateDailyIncomes(session: PosSession): Promise<PosSessionIncome[]> {
 	const orders = await collections.orders
 		.find({
-			createdAt: { $gte: session.openedAt },
+			createdAt: {
+				$gte: session.openedAt,
+				...(session.closedAt && { $lte: session.closedAt })
+			},
 			status: 'paid'
 		})
 		.toArray();
@@ -94,26 +103,30 @@ export async function calculateDailyIncomes(session: PosSession): Promise<PosSes
 			payment.currencySnapshot.accounting?.price ?? payment.currencySnapshot.main.price;
 		const originalPrice = payment.currencySnapshot.main.price;
 
+		const cashbackAmount = payment.cashbackAmount?.amount ?? 0;
+		const realAccountingAmount = accountingPrice.amount + cashbackAmount;
+		const realOriginalAmount = originalPrice.amount + cashbackAmount;
+
 		const key = payment.posSubtype ? `${payment.method} / ${payment.posSubtype}` : payment.method;
 
 		const existing = incomes.get(key);
 		if (existing) {
-			existing.amount += accountingPrice.amount;
+			existing.amount += realAccountingAmount;
 			if (
 				existing.originalCurrency &&
 				existing.originalCurrency === originalPrice.currency &&
 				originalPrice.currency !== accountingPrice.currency
 			) {
-				existing.originalAmount = (existing.originalAmount ?? 0) + originalPrice.amount;
+				existing.originalAmount = (existing.originalAmount ?? 0) + realOriginalAmount;
 			}
 		} else {
 			incomes.set(key, {
 				paymentMethod: payment.method,
 				...(payment.posSubtype && { paymentSubtype: payment.posSubtype }),
-				amount: accountingPrice.amount,
+				amount: realAccountingAmount,
 				currency: accountingPrice.currency,
 				...(originalPrice.currency !== accountingPrice.currency && {
-					originalAmount: originalPrice.amount,
+					originalAmount: realOriginalAmount,
 					originalCurrency: originalPrice.currency
 				})
 			});
@@ -121,6 +134,30 @@ export async function calculateDailyIncomes(session: PosSession): Promise<PosSes
 	});
 
 	return Array.from(incomes.values());
+}
+
+export async function calculateTotalCashback(
+	session: PosSession
+): Promise<{ amount: number; currency: Currency }> {
+	const orders = await collections.orders
+		.find({
+			createdAt: {
+				$gte: session.openedAt,
+				...(session.closedAt && { $lte: session.closedAt })
+			},
+			status: 'paid',
+			'payments.cashbackAmount': { $exists: true }
+		})
+		.toArray();
+
+	const paidPayments = orders.flatMap((order) => order.payments).filter((p) => p.status === 'paid');
+
+	// Sum cashback amounts (only non-cash POS payments)
+	const cashbackTotal = paidPayments
+		.filter((p) => p.cashbackAmount && p.posSubtype !== 'cash')
+		.reduce((sum, p) => sum + (p.cashbackAmount?.amount ?? 0), 0);
+
+	return { amount: cashbackTotal, currency: session.cashOpening.currency };
 }
 
 export async function closePosSession(params: {
@@ -141,11 +178,26 @@ export async function closePosSession(params: {
 	}
 
 	const dailyIncomes = await calculateDailyIncomes(session);
+	const cashbackTotal = await calculateTotalCashback(session);
+
+	// Build all outcomes including auto-calculated cashback
+	const allOutcomes = [
+		...params.outcomes,
+		...(cashbackTotal.amount > 0
+			? [
+					{
+						category: 'Cashback to customer',
+						amount: cashbackTotal.amount,
+						currency: cashbackTotal.currency
+					}
+			  ]
+			: [])
+	];
 
 	const cashIncome = dailyIncomes
 		.filter((inc) => inc.paymentSubtype === 'cash')
 		.reduce((sum, inc) => sum + inc.amount, 0);
-	const totalOutcomes = params.outcomes.reduce((sum, outcome) => sum + outcome.amount, 0);
+	const totalOutcomes = allOutcomes.reduce((sum, outcome) => sum + outcome.amount, 0);
 	const cashClosingTheoretical = {
 		amount: session.cashOpening.amount + cashIncome - totalOutcomes,
 		currency: session.cashOpening.currency
@@ -174,7 +226,7 @@ export async function closePosSession(params: {
 		cashDelta,
 		cashDeltaJustification: params.cashDeltaJustification,
 		dailyIncomes,
-		dailyOutcomes: params.outcomes,
+		dailyOutcomes: allOutcomes,
 		updatedAt: new Date()
 	};
 

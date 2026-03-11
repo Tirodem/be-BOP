@@ -18,17 +18,12 @@
 
 <div class="max-w-3xl mx-auto p-6 flex flex-col gap-4">
 	{#if form?.error || data?.error}
-		<p class="text-red-500">{form?.error || data?.error}</p>
+		<p class="text-red-500">{t('login.error.' + (form?.error || data?.error))}</p>
 	{/if}
 	<h2 class="text-2xl">{t('login.session.title')}</h2>
 	<ul class="list-disc ml-4">
 		{#if data.userId}
-			<li class="flex gap-2 items-center">
-				{t('login.session.userId', { userId: data.userId })}
-				<form action="?/clearUserId" class="contents" use:enhance method="post">
-					<button class="text-red-500 hover:underline"><IconTrash /></button>
-				</form>
-			</li>
+			<li>{t('login.session.userId', { userId: data.userId })}</li>
 		{/if}
 		{#if data.email && !data.emailFromSso}
 			<li class="flex gap-2 items-center break-words break-all">

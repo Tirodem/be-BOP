@@ -13,6 +13,15 @@
 		"vatNumber": "Umsatzsteuer-Identifikationsnummer",
 		"zipCode": "Postleitzahl"
 	},
+	"admin": {
+		"product": {
+			"stockReference": {
+				"label": "Auf Lagerbestand eines anderen Produkts verweisen (optional)",
+				"noReference": "-- Keine Referenz (eigenen Lagerbestand verwenden) --",
+				"warning": "⚠️ Dieses Produkt verweist auf den Lagerbestand eines anderen Produkts. Lagerbestandsänderungen wirken sich auf das referenzierte Produkt aus."
+			}
+		}
+	},
 	"ageWarning": {
 		"agreement": "Ich habe die Zugangsbedingungen gelesen, erfülle sie und respektiere sie",
 		"navigate": "Weiter stöbern"
@@ -413,6 +422,12 @@
 		"personalInformation": "Persönliche Informationen"
 	},
 	"login": {
+		"error": {
+			"invalidEmail": "Ungültige E-Mail-Adresse",
+			"invalidNpub": "Ungültige Nostr-npub-Adresse",
+			"invalidContactAddress": "Ihre Kontaktadresse ist ungültig (geben Sie entweder eine korrekte E-Mail-Adresse oder einen Nostr-npub ein)",
+			"invalidOrExpiredToken": "Ungültiger oder abgelaufener Token"
+		},
 		"authenticate": {
 			"ctaCancelLabel": "Zurück",
 			"ctaLabel": "Bestätigen",
@@ -452,7 +467,10 @@
 		"addPayment": {
 			"amount": "Zahlungsbetrag",
 			"cta": "Zahlungsaufforderung senden",
-			"currency": "Zahlungswährung"
+			"currency": "Zahlungswährung",
+			"posSubtype": "Typ",
+			"submit": "Hinzufügen",
+			"title": "Zahlung hinzufügen"
 		},
 		"backToOrder": "<< Zurück zur Bestellung",
 		"clickQR": "Klicken Sie auf den QR-Code, um mit Ihrer Wallet zu bezahlen",
@@ -565,8 +583,16 @@
 			"totalExcVat": "Gesamtbetrag exkl. MwSt.",
 			"totalInclVat": "Gesamtbetrag inkl. MwSt.",
 			"totalVat": "Gesamt-MwSt.",
+			"totalWithDiscount": "Gesamt mit Rabatt",
 			"unitPrice": "Stückpreis",
-			"vatFreeReason": "MwSt.-befreit: {reason}"
+			"vatFreeReason": "MwSt.-befreit: {reason}",
+			"peopleCount": "Anzahl der Personen"
+		},
+		"forwardReceipt": {
+			"cancel": "Abbrechen",
+			"send": "Senden",
+			"success": "Quittung weitergeleitet!",
+			"title": "Quittung weiterleiten"
 		},
 		"receiptFullyPaid": "Quittung erstellen (vollständig bezahlt)",
 		"receiptPending": "Quittung erstellen (ausstehende Zahlung)",
@@ -584,6 +610,7 @@
 		"shippingAddress": {
 			"title": "Lieferadresse"
 		},
+		"noOrdersYet": "Noch keine Bestellungen",
 		"singleTitle": "Bestellung #{number}",
 		"summary": {
 			"fullyPaid": {
@@ -606,6 +633,33 @@
 	"pos": {
 		"adminInterface": "Admin-Oberfläche",
 		"applyGiftDiscount": "Als POS-Benutzer wende ich einen Geschenkrabatt an",
+		"btn": {
+			"add": "Hinzufügen",
+			"cancel": "Abbrechen",
+			"cancelTap": "Tap stoppen",
+			"paid": "Bezahlt",
+			"replace": "Ändern ▾",
+			"replaceSubmit": "Ändern",
+			"tapToPay": "Kartenzahlung"
+		},
+		"cashback": {
+			"title": "Bargeldauszahlung ▾",
+			"toPay": "Zu zahlen",
+			"paid": "Bezahlt",
+			"change": "Rückgeld",
+			"cancel": "Bargeldauszahlung abbrechen",
+			"validate": "Bestätigen"
+		},
+		"input": {
+			"detail": "Detail",
+			"txNumber": "TX-Nr."
+		},
+		"label": {
+			"amount": "Betrag",
+			"currency": "Währung",
+			"method": "Methode",
+			"subtype": "Typ"
+		},
 		"cancelOrderMessage": "Sind Sie sicher, dass Sie die gesamte Bestellung stornieren möchten?",
 		"cta": {
 			"cancelMultiPayOrder": "Bestellung stornieren",
@@ -635,19 +689,30 @@
 		},
 		"sessionLink": "POS-Sitzung",
 		"sessionTouchLink": "POS-Sitzung - Touchscreen",
+		"nonEmptyPoolsWarning": "Achtung: Es gibt nicht leere Tische. Bitte verarbeiten Sie diese ordnungsgemäß, bevor Sie Ihre POS-Sitzung schließen.",
+		"touchSessionRequired": "Wenn Sie die POS-Touchscreen-Oberfläche verwenden möchten, öffnen Sie bitte eine Sitzung",
 		"tapToPay": {
 			"inProgress": "Die Zahlung wird automatisch bestätigt, sobald die externe Transaktion erfasst und bestätigt wurde.",
 			"inUseByOtherOrder": "Die Tap-to-Pay-Zahlung ist deaktiviert, da eine andere Bestellung diesen Zahlungsmodus verwendet. Sie können die Zahlung manuell entgegennehmen und anschließend die Transaktionsnummer in dieses Feld eintragen."
 		},
 		"vatFree": "Dies ist eine mehrwertsteuerfreie Bestellung (Bedingungen)",
 		"vatFreeReason": "Grund für Mehrwertsteuerbefreiung",
+		"tagGroups": {
+			"addGroup": "Gruppe hinzufügen",
+			"deleteGroup": "Gruppe löschen",
+			"groupNamePlaceholder": "Gruppenname",
+			"tooManyTagsWarning": "Die Gruppe \"{groupName}\" hat {count} Tags. Zu viele für den Button-Modus. Aktivieren Sie \"Auswahlmenü verwenden\" oder reduzieren Sie die Tags. Fortfahren?"
+		},
+		"useSelectForTags": "Auswahlmenü für Produkt-Tag-Auswahl verwenden",
 		"touch": {
 			"selectTab": "Tab auswählen:",
 			"noTabs": "Diese Gruppe hat keine Tabs",
 			"cancel": "Abbrechen",
+			"back": "← Zurück",
 			"ticketNumber": "TICKET Nr.",
 			"exclVat": "oM",
 			"inclVat": "iM",
+			"subtotal": "ZWISCHENSUMME",
 			"total": "TOTAL",
 			"vatBreakdown": "Davon MwSt",
 			"favorites": "FAVORITEN",
@@ -655,12 +720,17 @@
 			"pagination": "SEITE {currentPage}/{totalPages}",
 			"tickets": "TICKETS",
 			"save": "SPEICHERN",
+			"moveItems": "Artikel verschieben",
 			"pool": "POOL",
 			"openDrawer": "KASSE ÖFFNEN",
 			"pay": "BEZAHLEN",
 			"notDeveloped": "Noch nicht entwickelt",
 			"confirmDeleteLastItem": "Möchten Sie die letzte Warenkorb-Zeile löschen?",
-			"confirmDeleteAllItems": "Möchten Sie alle Warenkorb-Zeilen löschen?"
+			"confirmDeleteAllItems": "Möchten Sie alle Warenkorb-Zeilen löschen?",
+			"maxQuantityReached": "Maximale Menge pro Bestellung erreicht ({max})",
+			"itemPrintedCannotDelete": "Dieser Artikel wurde auf einem Küchenbon gedruckt und kann nicht gelöscht werden",
+			"itemPrintedCannotReduce": "Die Menge kann nicht unter die gedruckte Menge reduziert werden: {min}",
+			"poolHasPrintedItems": "Dieser Pool enthält gedruckte Artikel und kann nicht gelöscht werden"
 		},
 		"itemEdit": {
 			"quantity": "Menge",
@@ -674,10 +744,13 @@
 		},
 		"split": {
 			"notAvailableYet": "Noch nicht verfügbar",
-			"tabHeader": "Tab {slug}",
-			"tabToPayNow": "Tab {slug} (jetzt zu bezahlen)",
+			"tabHeader": "Tab {poolLabel}",
+			"tabToPayNow": "Tab {poolLabel} (jetzt zu bezahlen)",
+			"pool": "POOL",
+			"poolRemainingToPay": "POOL (noch zu bezahlen)",
 			"exclVat": "ohne MwSt",
 			"inclVat": "inkl. MwSt {rates}",
+			"inclVatShort": "inkl. MwSt",
 			"vatRate": "MwSt {rate}%",
 			"cashIn": "Kassieren",
 			"all": "alles",
@@ -685,12 +758,71 @@
 			"shares": "Anteile",
 			"itemize": "aufschlüsseln",
 			"return": "Zurück",
-			"paySelected": "Auswahl bezahlen"
+			"continueSplit": "Weiter",
+			"skipForNow": "Vorerst überspringen",
+			"paySelected": "Auswahl bezahlen",
+			"includingVatIncluded": "Davon (inkl. MwSt):",
+			"tagProducts": "Produkte \"{name}\"",
+			"otherProducts": "Andere Produkte",
+			"selectItems": "Bitte wählen Sie Artikel zum Bezahlen",
+			"splitByShares": "Nach Anteilen aufteilen",
+			"enterNumberOfParts": "Anzahl der Anteile",
+			"manualAmount": "Manueller Betrag",
+			"ok": "OK",
+			"payRemaining": "Rest bezahlen",
+			"totalAlreadyPaid": "Bereits bezahlt (inkl. MwSt)",
+			"remainingToPay": "Noch zu bezahlen (inkl. MwSt)",
+			"allPaid": "Alles bezahlt",
+			"completeSharesFirst": "Sie haben bereits begonnen, den Pool über \"Aufteilen (Anteile)\" zu bezahlen. Bitte schließen Sie alle Zahlungen ab und schließen Sie den Pool zuerst.",
+			"closePool": "Pool schließen",
+			"globalTicket": "Gesamtticket",
+			"beforeDiscount": "VOR RABATT",
+			"afterDiscount": "NACH RABATT"
+		},
+		"receipt": {
+			"ticket": "Beleg (Ticket)",
+			"invoice": "Rechnung (A4)"
+		},
+		"staffNotes": "Mitarbeiternotizen",
+		"discount": {
+			"title": "Rabatt",
+			"noDiscount": "Kein Rabatt",
+			"manualPercent": "Manuell %",
+			"manualPercentPlaceholder": "Prozentsatz eingeben (0-100)",
+			"applyToTag": "Auf Tag anwenden:",
+			"allProducts": "Alle Produkte",
+			"currentDiscount": "Aktueller Rabatt:",
+			"none": "Keiner",
+			"motiveLabelOptional": "Rabattgrund (optional):",
+			"motivePlaceholder": "z.B. Passeport gourmand",
+			"lockedWarning": "⚠️ Rabatt kann nach Zahlungsbeginn nicht mehr geändert werden",
+			"save": "Speichern"
+		},
+		"midTicket": {
+			"title": "Küchen-/Zwischenticket-Einstellungen",
+			"topBlankLines": "Anzahl der Leerzeilen oben auf dem Ticket (zum Einspannen)",
+			"topBlankLinesHint": "Standard: 0",
+			"printedAt": "Gedruckt am {date} um {time}",
+			"poolFirstItemAdded": "Tisch eröffnet am {date} um {time}",
+			"orderCreatedAt": "Bestellung erstellt am {date} um {time}"
 		}
 	},
 	"product": {
 		"addedToCart": "Produkt zum Warenkorb hinzugefügt",
 		"availableOn": "Verfügbar am {date}",
+		"booking": {
+			"duration": "Dauer",
+			"hour": {
+				"one": "1 Stunde",
+				"other": "{count} Stunden"
+			},
+			"minute": {
+				"one": "1 Minute",
+				"other": "{count} Minuten"
+			},
+			"time": "Tageszeit",
+			"timezone": "Zeitzone: {timeZone}"
+		},
 		"checkBackLater": "Bitte schauen Sie später wieder vorbei",
 		"cta": {
 			"add": "Zum Warenkorb hinzufügen",
@@ -698,7 +830,8 @@
 			"details": "Details",
 			"donate": "Jetzt spenden",
 			"preorder": "Jetzt vorbestellen",
-			"subscribe": "Jetzt abonnieren"
+			"subscribe": "Jetzt abonnieren",
+			"view": "Produkt ansehen"
 		},
 		"deposit": {
 			"payFullPrice": "Jetzt den vollen Preis bezahlen",
@@ -709,6 +842,8 @@
 		},
 		"discountBanner": "{discountPercent}% Rabatt für {timespan}",
 		"discountBannerNoTime": "{discountPercent}% Rabatt",
+		"freeProductDiscountText": "Sie haben {available} kostenlose Produkte",
+		"freeProductDiscountTextSingular": "Sie haben {available} kostenloses Produkt",
 		"freeWithSub": "Dieses Produkt ist kostenlos mit Ihrem monatlichen Abonnement erhältlich",
 		"freeWithTitle": "Kostenlos mit „xxxxx“",
 		"horsTaxeShort": "Netto",
@@ -753,7 +888,9 @@
 	},
 	"subscription": {
 		"associated": {
-			"npub": "Verknüpft mit Npub: {npub}"
+			"title": "Verknüpft mit:",
+			"npub": "Verknüpft mit Npub: {npub}",
+			"email": "Verknüpft mit E-Mail: {email}"
 		},
 		"cantRenew": "Abonnement nicht zur Verlängerung fällig",
 		"cta": {
@@ -761,8 +898,14 @@
 		},
 		"initiallyCreated": "Ursprünglich erstellt: ",
 		"paidUntil": "Bezahlt bis: ",
+		"expiresOn": "Läuft ab am",
+		"lastOrder": "Letzte Bestellung anzeigen",
+		"lastPayment": "Letzte Zahlung",
+		"listTitle": "Ihre Abonnements",
+		"noSubscriptions": "Sie haben noch keine Abonnements.",
 		"singleTitle": "Abonnement #{number}",
 		"status": {
+			"active": "aktiv",
 			"expired": "abgelaufen"
 		}
 	},
