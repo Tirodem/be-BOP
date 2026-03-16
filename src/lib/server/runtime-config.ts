@@ -209,7 +209,8 @@ const baseConfig = {
 		publicKey: '',
 		/** sk_... */
 		secretKey: '',
-		currency: 'EUR' as Currency
+		currency: 'EUR' as Currency,
+		embedPaymentForm: false
 	},
 	btcpayServer: {
 		apiKey: '',
@@ -271,6 +272,11 @@ const baseConfig = {
 	displayPoweredBy: false,
 	displayCompanyInfo: false,
 	displayMainShopInfo: false,
+	displayFullWidthHeader: false,
+	displayFullWidthNavbar: false,
+	displayFullWidthFooter: false,
+	displayFullWidthProductPages: false,
+	displayFullWidthCmsPages: false,
 	disableNostrBotIntro: false,
 	hideFromSearchEngines: false,
 	telemetry: null as null | {
@@ -619,12 +625,6 @@ async function refresh(item?: ChangeStreamDocument<RuntimeConfigItem>): Promise<
 	for (const templateKey of typedKeys(defaultConfig.emailTemplates)) {
 		if (!(templateKey in runtimeConfig.emailTemplates)) {
 			runtimeConfig.emailTemplates[templateKey] = defaultConfig.emailTemplates[templateKey];
-		}
-	}
-
-	for (const currency of typedKeys(defaultConfig.exchangeRate)) {
-		if (!(currency in runtimeConfig.exchangeRate)) {
-			runtimeConfig.exchangeRate[currency] = defaultConfig.exchangeRate[currency];
 		}
 	}
 

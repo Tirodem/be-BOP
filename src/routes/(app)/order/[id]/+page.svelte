@@ -217,6 +217,7 @@
 						sellerIdentity={data.sellerIdentity}
 						posSubtypes={data.posSubtypes}
 						returnTo={data.returnTo}
+						stripePublicKey={data.stripePublicKey}
 					>
 						<PaymentActions
 							{payment}
@@ -230,8 +231,6 @@
 							tapToPayInUseByOtherOrder={data.tapToPay.inUseByOtherOrder}
 							printReceipt={() => receiptIFrame[payment.id]?.contentWindow?.print()}
 							printTicket={() => ticketIFrame[payment.id]?.contentWindow?.print()}
-							receiptReady={receiptReady[payment.id]}
-							ticketReady={ticketReady[payment.id]}
 						/>
 					</PaymentItem>
 

@@ -2527,12 +2527,15 @@ export async function updateAfterOrderPaid(order: Order, session: ClientSession)
 		await handleOrderTabAfterPayment({ order, session });
 	}
 
-	if (order.items.some((item) => item.product.type === 'subscription')) {
+	if (order.items.some((item) => item.booking)) {
 		await collections.scheduleEvents.updateMany(
 			{ orderId: order._id },
 			{ $set: { status: 'confirmed' } },
 			{ session }
 		);
+	}
+
+	if (order.items.some((item) => item.product.type === 'subscription')) {
 		await applyOrderSubscriptionsDiscounts(order, session);
 	}
 
